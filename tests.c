@@ -47,7 +47,7 @@ void strip_at_every_test(char* test_lines) {
       free(splitted[i]);
    }
    free(splitted);
-
+   free(lines);
 }
 
 
