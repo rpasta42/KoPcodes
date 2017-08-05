@@ -44,7 +44,7 @@ int parse_human_num(char* s) {
 
 char* strip(string_t str) {
    size_t str_len = strlen(str);
-   char* ret = malloc(str_len);
+   char* ret = malloc(str_len+1);
 
    bool last_space = true;
    int i = 0, j = 0;

@@ -22,7 +22,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
    lexed_line_t* ret = malloc(sizeof(lexed_line_t)*num_lines);
 
-   DEBUG
+   DEBUG("lex start")
 
    int i; //, j;
    for (i = 0; i < num_lines; i++) {
@@ -100,7 +100,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
       //free(line);
    }
 
-   DEBUG
+   DEBUG("lex end")
    /*for (i = 0; i < num_lines; i++) {
       free(lines[i];
    }*/
@@ -183,7 +183,7 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
             }
 
             if (!have_instr_name) {
-               printf("\ncouldn't match instruction to opcode: %s", lexeme->str);
+               printf("\ncouldn't match instruction to opcode: %s", str_lex);
                goto bad;
             }
 

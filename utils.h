@@ -12,7 +12,7 @@
 
 
 
-#define DEBUG   printf("\ngot here\n");
+#define DEBUG(s)  printf("\ngot here:%s\n", s);
 #define PACKED __attribute__((packed))
 
 //type either struct or something else

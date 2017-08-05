@@ -9,7 +9,7 @@ void run_asm(char* str) {
    int num_lines;
    lexed_line_t* lexed = lex(str, &num_lines);
 
-   //DEBUG
+   DEBUG("run_asm")
 
 
    instr_t* instructs = gen_instructions(lexed, num_lines);
