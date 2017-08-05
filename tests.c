@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "tests.h"
+#include "main.h"
 
 void split_at_test(string_t str, string_t splitter) {
    char** parts = split_at(str, splitter);
@@ -34,7 +35,7 @@ void strip_tests() {
    free(stripped2);
 }
 
-void strip_at_every_test(char* test_lines) {
+void split_at_every_test(char* test_lines) {
    char* lines = strip(test_lines);
 
    int num_lines;
@@ -51,19 +52,48 @@ void strip_at_every_test(char* test_lines) {
 }
 
 
-void strip_at_every_tests() {
+void split_at_every_tests() {
    char* line1 = "hello\nworld\nI\nam\nkostya";
    char* line2 = "hello\nworld\nIdsf\nadsdfm\nkostya";
    char* line3 = "\nhello\n\nworld\nhello\n\n";
-   strip_at_every_test(line1);
-   strip_at_every_test(line2);
-   strip_at_every_test(line3);
+   split_at_every_test(line1);
+   split_at_every_test(line2);
+   split_at_every_test(line3);
+}
+
+
+
+void lex_test(char* str) {
+
+   int num_lines;
+   lexed_line_t* lexed = lex(str, &num_lines);
+
+   int i, j;
+   for (i = 0; i < num_lines; i++) {
+      lexed_line_t* lexed_line = &lexed[i];
+      printf("line with %i lexemes: ", lexed_line->num_lexemes);
+      for (j = 0; j < lexed_line->num_lexemes; j++) {
+         lexeme_t* lexeme = &lexed_line->lexemes[j];
+         printf("\t%i:%s", lexeme->len, lexeme->str);
+      }
+      printf("\n");
+   }
+   printf("\n\n");
 }
 
 void run_tests() {
-   strip_at_every_tests();
+
+   //strip_tests();
+   //return;
+
+   //constants 4 and 5 have length of 2 for some reason
+   lex_test("mov eax, 4\nmov ebx, 5\npush edx");
+
+   lex_test("mov ;test world\nin");
+
+   return;
+   split_at_every_tests();
    split_at_tests();
-   strip_tests();
 }
 
 

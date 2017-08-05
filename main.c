@@ -2,6 +2,8 @@
 
 #include "utils.h"
 #include "tests.h"
+#include "main.h"
+
 
 //***ELF
 
@@ -22,10 +24,8 @@ void init_header(elf32_header_t* header) {
 
 //***END ELF
 
-char** lex(char* file) {
-   char* stripped = strip(file);
 
-}
+
 
 
 //typedef enum instr_arg_types {} instr_arg_types;

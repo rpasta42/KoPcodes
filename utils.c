@@ -18,17 +18,17 @@ char* strip(string_t str) {
       if (is_spacy(c)) {
 
          if (last_space) {
-            if (c == '\n') {
-               if (i == 0)
-                  continue;
-               do {
-                  j--;
-               } while (is_spacy(ret[j]));
-               j++;
-               //ret[j++] = '\n';
-            }
-            else
+            last_space = true;
+            if (c != '\n')
                continue;
+
+            if (i == 0 || j == 0)
+               continue;
+            do {
+               j--;
+            } while (is_spacy(ret[j]) && j > 0);
+            //j++;
+            //ret[j++] = '\n';
          }
          last_space = true;
          if (c == '\t' || c == ' ')
@@ -42,9 +42,13 @@ char* strip(string_t str) {
       }
    }
 
-   int last_ret = strlen(ret) - 1;
+   ret[j] = '\0';
+   /*int last_ret = strlen(ret) - 1;
    if (ret[last_ret] == '\n')
-      ret[last_ret] = '\0';
+      ret[last_ret] = '\0';*/
+
+   //ret[last_ret] = '\0';
+
    return ret;
 }
 
