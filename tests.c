@@ -29,6 +29,7 @@ void split_at_tests() {
 void strip_tests() {
    char* stripped1 = strip("   hello  world!   f  ");
    char* stripped2 = strip("  mov eax, 5   \nmov   edx,  9 ;\n\n  hello    dsfds f  fsd");
+
    printf("%s\n", stripped1);
    printf("%s\n", stripped2);
    free(stripped1);
@@ -82,16 +83,43 @@ void lex_test(char* str) {
    printf("\n\n");
 }
 
+
+
 void run_tests() {
-
-   //split_at_every_tests();
-   //strip_tests();
-   //return;
-
    //constants 4 and 5 have length of 2 for some reason
-   lex_test("mov eax, 4\nmov ebx, 5\npush edx");
+   //lex_test("mov eax, 4\nmov ebx, 5\npush edx");
    //lex_test("mov ;test world\nin");
    //lex_test("mov ;test world\nin\npush");
+   //return;
+
+   char* lex_test_str1 = "mov eax, 4\nmov ebx, 5\npush edx";
+   char* lex_test_str2 = "mov ;test world\nin";
+
+   char* lex_test_str3 = "SECTION .data\n\n   ;message\n fopen";
+   char* str = lex_test_str3;
+
+   int num_lines;
+   lexed_line_t* lexed = lex(str, &num_lines);
+
+   instr_t* instructs = gen_instructions(lexed, num_lines);
+
+   printf("\nerror if 0: %i\n", (uint32_t)instructs);
+   if (instructs) {
+      print_instructs(instructs, num_lines);
+   }
+
+   return;
+
+   strip_tests();
+   return;
+
+
+   //split_at_every_tests();
+
+   //return;
+
+
+
 
    return;
    split_at_tests();

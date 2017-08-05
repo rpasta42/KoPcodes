@@ -5,67 +5,41 @@
 #include "main.h"
 
 
-//***ELF
+void run_asm(char* str) {
+   int num_lines;
+   lexed_line_t* lexed = lex(str, &num_lines);
 
-typedef struct elf32_header_t {
-   char magic[4];
-
-} PACKED elf32_header_t;
-
-
-void init_header(elf32_header_t* header) {
-   char* elf_str = "ELF";
+   //DEBUG
 
 
-   header->magic[0] = 0x7f;
-   memcpy(&header->magic[1], elf_str, 3);
+   instr_t* instructs = gen_instructions(lexed, num_lines);
+
+   printf("\nerror if 0: %i\n", (uint32_t)instructs);
+   if (instructs) {
+      print_instructs(instructs, num_lines);
+   }
+
+   return;
 }
 
+int main(int nargs, char** args) {
 
-//***END ELF
-
-
-
-
-
-//typedef enum instr_arg_types {} instr_arg_types;
-TYPE(instr_arg_type, enum) {
-   ArgReg8,
-   ArgReg16,
-   ArgReg32,
-   ArgConst,
-   ArgAddr
-} END_TYPE(instr_arg_type);
-
-//typedef struct instr {} instr;
-TYPE(instr, struct) {
-   char* name;
-   instr_arg_type* arg1;
-   instr_arg_type* arg2;
-} END_TYPE(instr);
-
-
-/*
-enum instr_args {
-   InstrNone,
-   InstrConst, //0x80 43
-   InstrAddr,
-   InstrReg,
-   InstrRegConst2, //mov eax, 0x04
-   Instr
-
-}
-
-enum opcodes {
-   mov_r16_const
-};
-*/
-
-
-
-int main() {
    //run_tests();
-   printf("%i", is_alpha('a'));
+   //return;
+   char* str;
+   if (true) { //(nargs != 2)
+      str = read_file("life2.asm");//return -1;
+      printf("succ");
+   }
+   else {
+      str = read_file(args[1]);
+      printf("\n%s read successfully!\n", args[1]);
+   }
+
+
+   run_asm(str);
+
+   //printf("%i", is_alpha('a'));
 
 }
 

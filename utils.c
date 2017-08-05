@@ -19,6 +19,28 @@ bool is_hex_digit(char c) {
 }
 
 
+//returns 0xDEADBAEF if can't parse
+int parse_hex_num(char* s) {
+
+   int i;
+   for (i = 0; i < strlen(s); i++) {
+      if (!is_hex_digit(s[i]) && s[i] != ' ')
+         return 0xDEADBAEF;
+   }
+   return strtol(s, NULL, 16);
+}
+
+//returns 0xDEADBAEF if can't parse
+int parse_human_num(char* s) {
+   int i;
+   for (i = 0; i < strlen(s); i++) {
+      if (!is_digit(s[i]) && s[i] != ' ')
+         return 0xDEADBAEF;
+   }
+   return strtol(s, NULL, 10);
+}
+
+
 
 char* strip(string_t str) {
    size_t str_len = strlen(str);
@@ -92,6 +114,7 @@ char** split_at(string_t str, string_t split) {
       return NULL;
 
    char** ret = malloc(sizeof(char*)*2);
+   //printf("fst:%i snd:%i\n", fst_len, snd_len);
    ret[0] = malloc(fst_len+1);
    ret[1] = malloc(snd_len+1);
 
@@ -158,5 +181,46 @@ char** split_at_every(string_t str, string_t split, int* num_splits) {
 
    return ret;
 }
+
+
+char* read_file(char *fname) {
+   char *buff = NULL;
+   int flen, bytes_read;
+   FILE *f = fopen(fname, "r");
+
+   if (f) {
+      //printf("\nopened file successfully\n");
+	fseek(f, 0, SEEK_END); //last byte of the file
+
+	flen = ftell(f); //offset first to last byte (file size)
+
+	rewind(f); // go back to the start of the file
+
+	buff = (char*) malloc(sizeof(char) * (flen + 1) );
+
+	//read the whole file
+	bytes_read = fread(buff, sizeof(char), flen, f);
+
+	// fread doesn't set it so put a \0 in the last position for string
+	buff[flen] = '\0';
+
+	if (flen != bytes_read) {
+	   //error
+
+         printf("failed to read file\n");
+	   free(buff);
+	   buff = NULL;
+	}
+
+	// Always remember to close the file.
+	fclose(f);
+   }
+   else {
+      printf("\nerrorr opening/reading file\n");
+   }
+   return buff;
+}
+
+
 
 
