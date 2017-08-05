@@ -1,0 +1,48 @@
+life:
+   ida: 0x08049540
+   bless: 0x540
+
+
+B8 04 00 00 00          mov eax, 4
+BB 01 00 00 00          mov ebx, 1
+BA 01 00 00 00          mov edx, 1
+
+B9 B8 9D 04 08          mov ecx, misc_buffer
+
+
+5B                      pop ebx
+58                      pop eax
+
+50                      push eax
+53                      push ebx
+
+CD 80                   int 0x80
+
+89 C0                   mov eax, eax
+89 D8                   mov eax, ebx
+89 C8                   mov eax, ecx
+89 d0                   mov eax, edx
+
+89 C3                   mov ebx, eax
+89 DB                   mov ebx, ebx
+89 CB                   mov ebx, ecx
+89 D3                   mov ebx, edx
+
+B8 00 00 10 00          mov eax, 100000h
+
+
+
+66 c7 05 00 10 00 00 04 00          mov WORD [0x1000], 4
+
+
+===breakdown
+https://en.wikibooks.org/wiki/X86_Assembly/Machine_Language_Conversion
+
+B8 = mov eax, xxx
+BB = mov ebx, xxx
+
+BB-B8 = 3
+
+
+
+
