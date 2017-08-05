@@ -10,10 +10,14 @@ void init_lexeme(lexeme_t* lex, char* line, int start, int len) {
    lex->len = len;
 }
 
+void to_lower_str(char* p) {
+   for ( ; *p; ++p) *p = tolower(*p);
+}
 
 lexed_line_t* lex(char* file, int *num_lines1) {
 
    char* stripped = strip(file);
+   to_lower_str(stripped);
    printf("\n*****\n%s\n******\n", stripped);
 
    int num_lines;
@@ -111,6 +115,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
 
 char* instr_names_str[] = {
+   "section",
    "add",
    "and",
    "call",
@@ -146,8 +151,72 @@ char* reg_names_str[] = {
    "edx",
 };
 
+
+
 #define NUM_INSTRUCTS OpSub + 1
 #define NUM_REGS RegEdx + 1
+
+
+bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {
+
+   bool have_arg = false;
+
+   int k;
+   //first test if it's a register
+   for (k = 0; k < NUM_REGS; k++) {
+      char* test_name = reg_names_str[k];
+      int test_name_len = strlen(test_name);
+      int cmp_res = strncmp(str_lex, test_name, test_name_len);
+      if (cmp_res == 0) {
+         *arg_t = ArgReg32;
+         arg_v->reg_index = k;
+         return true;
+      }
+   }
+
+
+   if (str_lex[0] == '0' && str_lex[1] == 'x') {
+      //..
+      *arg_t = ArgConst;
+
+      int hex_num = parse_hex_num(str_lex+2);
+
+      if (hex_num == 0xDEADBAEF) {
+         printf("couldn't parse hex num: %s", str_lex);
+         return false;
+      }
+
+      arg_v->const_num = hex_num;
+
+      return true;
+   }
+
+   if (is_digit(str_lex[0])) {
+      *arg_t = ArgConst;
+
+      int human_num = parse_human_num(str_lex);
+      if (human_num == 0xDEADBAEF) {
+         printf("couldn't parse number: %s", str_lex);
+         return false;
+      }
+
+      arg_v->const_num = human_num;
+
+      //..
+      return true;
+   }
+
+   /*if (str_lex[0] == '.') {
+      *arg_t = //Arg
+   }*/
+   *arg_t = LEX_SYM;
+   *arg_v->sym_str = str_lex;
+
+   //printf("\ncouldn't parse argument: %s", str_lex);
+   //return false;
+}
+
+
 
 instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
 
@@ -190,8 +259,10 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
             continue;
          }
          else if (!have_fst_arg) {
+            bool good_fst = extract_arg(str_lex, &instructs[i].arg1_t, &instructs[i].arg1_v);
+            have_fst_arg = good_fst;
 
-            //first test if it's a register
+            /*//first test if it's a register
             for (k = 0; k < NUM_REGS; k++) {
                char* test_name = reg_names_str[k];
                int test_name_len = strlen(test_name);
@@ -239,18 +310,18 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
                //..
                have_fst_arg = true;
             }
+            */
 
             if (!have_fst_arg) {
                printf("\ncouldn't parse first argument: %s", lexeme->str);
                goto bad;
             }
             continue;
-
          }
          else if (!have_snd_arg) {
+            bool good_snd = extract_arg(str_lex, &instructs[i].arg2_t, &instructs[i].arg2_v);
 
-
-            //first test if it's a register
+            /*//first test if it's a register
             for (k = 0; k < NUM_REGS; k++) {
                char* test_name = reg_names_str[k];
                int test_name_len = strlen(test_name);
@@ -298,7 +369,9 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
                //..
                have_snd_arg = true;
             }
-            printf("%s", str_lex);
+            printf("%s", str_lex);*/
+
+            have_snd_arg = good_snd;
 
             if (!have_snd_arg) {
                printf("\ncouldn't parse second argument: %s", str_lex);
@@ -319,7 +392,7 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
 
    return instructs;
 
-
+   bad_lex:;
    bad:;
    free(instructs);
    return NULL;

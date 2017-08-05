@@ -9,7 +9,8 @@
 TYPE(lex_type_t, enum) {
    LEX_SYM, //LEX_STR
    LEX_HEX, LEX_INT,
-   LEX_REG
+   LEX_REG,
+   LEX_DOT_SYM
    //LEX_COMMA, LEX_SEMI,
    //LEX_OPEN_SQUARE, LEX_CLOSE_SQUARE
 } END_TYPE(lex_type_t);
@@ -48,6 +49,7 @@ TYPE(reg_name_t, enum) {
 //typedef enum instr_arg_types {} instr_arg_types;
 TYPE(instr_arg_type_t, enum) {
    ArgNone,
+   ArgSym,
    ArgReg8,
    ArgReg16,
    ArgReg32,
@@ -56,6 +58,7 @@ TYPE(instr_arg_type_t, enum) {
 } END_TYPE(instr_arg_type_t);
 
 TYPE(instr_name_t, enum) {
+   OpSection,
    OpAdd,
    OpAnd,
    OpCall,
@@ -87,6 +90,7 @@ TYPE(instr_name_t, enum) {
 TYPE(instr_arg_value_t, union) {
    reg_name_t reg_index; //-1 not a reg
    int const_num;
+   char* sym_str;
 } END_TYPE(instr_arg_value_t);
 
 //typedef struct instr_t {} instr_t;
