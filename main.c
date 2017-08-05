@@ -64,7 +64,8 @@ enum opcodes {
 
 
 int main() {
-   run_tests();
+   //run_tests();
+   printf("%i", is_alpha('a'));
 
 }
 

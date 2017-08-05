@@ -2,9 +2,23 @@
 #include "utils.h"
 
 
-bool is_spacy(char c) {
+bool is_spacy(char c) { //is space-like
    return c == '\t' || c == ' ' || c == '\n';
 }
+
+bool is_alpha(char c) {
+   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool is_digit(char c) {
+   return c >= '0' && c <= '9';
+}
+
+bool is_hex_digit(char c) {
+   return is_digit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+}
+
+
 
 char* strip(string_t str) {
    size_t str_len = strlen(str);
@@ -18,7 +32,6 @@ char* strip(string_t str) {
       if (is_spacy(c)) {
 
          if (last_space) {
-            last_space = true;
             if (c != '\n')
                continue;
 
@@ -27,7 +40,7 @@ char* strip(string_t str) {
             do {
                j--;
             } while (is_spacy(ret[j]) && j > 0);
-            //j++;
+            j++;
             //ret[j++] = '\n';
          }
          last_space = true;
@@ -43,9 +56,10 @@ char* strip(string_t str) {
    }
 
    ret[j] = '\0';
-   /*int last_ret = strlen(ret) - 1;
+
+   int last_ret = strlen(ret) - 1;
    if (ret[last_ret] == '\n')
-      ret[last_ret] = '\0';*/
+      ret[last_ret] = '\0';
 
    //ret[last_ret] = '\0';
 
@@ -74,14 +88,14 @@ char** split_at(string_t str, string_t split) {
 
    //printf("fst len: %i\tsnd len:%i\n", fst_len, snd_len);
 
-   if (snd_len < 0 || fst_len < 0)
+   if (snd_len <= 0 || fst_len <= 0)
       return NULL;
 
    char** ret = malloc(sizeof(char*)*2);
    ret[0] = malloc(fst_len+1);
    ret[1] = malloc(snd_len+1);
 
-   char* c = str;
+   const char* c = str;
    i = 0;
    for (; c != occurance; c++) {
       ret[0][i] = *c;

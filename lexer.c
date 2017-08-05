@@ -2,11 +2,12 @@
 #include "types.h"
 
 
-void init_lexeme(lexeme_t* lex, char* line, int start, int end) {
-   lex->len = end - start;
+void init_lexeme(lexeme_t* lex, char* line, int start, int len) {
 
-   lex->str = malloc(lex->len);
-   memcpy(lex->str, line+start, lex->len);
+   lex->str = malloc(len+1);
+   memcpy(lex->str, line+start, len);
+
+   lex->len = len;
 }
 
 
@@ -30,24 +31,32 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
       char* good_line = NULL;
 
+      bool have_comment = false;
       char** comment_split = split_at(line, ";");
       if (comment_split == NULL)
          good_line = line;
       else {
+         have_comment = true;
          good_line = comment_split[0];
+         //printf("\ncomment split:%s\n", good_line);
          free(comment_split);
          free(comment_split[1]);
          free(line);
       }
 
+      //printf("\ngood_line: %s\t good line len:%i\n", good_line, strlen(good_line));
+
       char* bad_line = good_line;
       good_line = strip(bad_line);
-      printf("\nbad_line:%s\ngood_line:%s\n", bad_line, good_line);
+      //printf("\nbad_line %i:%s\ngood_line %i:%s\n", strlen(bad_line), bad_line, strlen(good_line), good_line);
       free(bad_line);
 
 
       //instruction/operands split
       char** instr_op_split = split_at(good_line, " ");
+
+      //printf("\nhave comment:%i, instr_op_split:%i\n", have_comment, instr_op_split);
+
       if (instr_op_split == NULL) {
          num_lexemes = 1;
          lexemes = malloc(sizeof(lexeme_t));
@@ -66,7 +75,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
             num_lexemes = 3;
          lexemes = malloc(sizeof(lexeme_t)*num_lexemes);
 
-         init_lexeme(&lexemes[0], instr, 0, strlen(instr));
+         init_lexeme(&lexemes[0], instr, 0, strlen(instr)); //instruction
 
          if (op_split == NULL) { //multiple arguments or 1
             init_lexeme(&lexemes[1], ops, 0, strlen(ops));
@@ -80,7 +89,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
       ret[i].lexemes = lexemes;
       ret[i].num_lexemes = num_lexemes;
 
-      free(line);
+      //free(line);
    }
 
    /*for (i = 0; i < num_lines; i++) {
@@ -92,3 +101,18 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 }
 
 
+void parse_lexemes(lexed_line_t* lines, int num_lines) {
+
+   int i, j;
+   for (i = 0; i < num_lines; i++) {
+      lexed_line_t* line = &lines[i];
+
+      lexeme_t* lexemes = line->lexemes;
+      int num_lexemes = line->num_lexemes;
+
+      for (j = 0; j < num_lexemes; j++) {
+
+      }
+   }
+
+}

@@ -37,6 +37,7 @@ void strip_tests() {
 
 void split_at_every_test(char* test_lines) {
    char* lines = strip(test_lines);
+   //printf("\noriginal:%s\tnew:%s\n", test_lines, lines);
 
    int num_lines;
    char** splitted = split_at_every(lines, "\n", &num_lines);
@@ -83,16 +84,16 @@ void lex_test(char* str) {
 
 void run_tests() {
 
+   //split_at_every_tests();
    //strip_tests();
    //return;
 
    //constants 4 and 5 have length of 2 for some reason
    lex_test("mov eax, 4\nmov ebx, 5\npush edx");
-
-   lex_test("mov ;test world\nin");
+   //lex_test("mov ;test world\nin");
+   //lex_test("mov ;test world\nin\npush");
 
    return;
-   split_at_every_tests();
    split_at_tests();
 }
 
