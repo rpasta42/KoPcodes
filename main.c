@@ -5,30 +5,14 @@
 #include "main.h"
 
 
-void run_asm(char* str) {
-   int num_lines;
-   lexed_line_t* lexed = lex(str, &num_lines);
-
-   DEBUG("run_asm")
-
-
-   instr_t* instructs = gen_instructions(lexed, num_lines);
-
-   printf("\nerror if 0: %i\n", (uint32_t)instructs);
-   if (instructs) {
-      print_instructs(instructs, num_lines);
-   }
-
-   return;
-}
-
 int main(int nargs, char** args) {
 
    //run_tests();
-   //return;
+   //return 0;
+
    char* str;
    if (true) { //(nargs != 2)
-      str = read_file("life2.asm");//return -1;
+      str = read_file("test.asm");//read_file("life2.asm");//return -1;
       printf("succ");
    }
    else {

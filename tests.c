@@ -96,7 +96,15 @@ void run_tests() {
    char* lex_test_str2 = "mov ;test world\nin";
 
    char* lex_test_str3 = "SECTION .data\n\n   ;message\n fopen";
-   char* str = lex_test_str3;
+
+   char* lex_test_str4 = "SECTION .data\nmov ;hi\n;message\n fopen";
+   char* lex_test_str5 = "mov eax, 0x4a\nmov ebx, 0x5\npush edx";
+
+   char* lex_test_str6 = "fopen_succ_str db 'Successfully opened file', 0xa\n";
+
+
+
+   char* str = lex_test_str6;
 
    int num_lines;
    lexed_line_t* lexed = lex(str, &num_lines);

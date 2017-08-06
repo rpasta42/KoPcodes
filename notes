@@ -4,10 +4,10 @@ life:
 
 
 B8 04 00 00 00          mov eax, 4
+B9 B8 9D 04 08          mov ecx, misc_buffer
 BB 01 00 00 00          mov ebx, 1
 BA 01 00 00 00          mov edx, 1
 
-B9 B8 9D 04 08          mov ecx, misc_buffer
 
 
 5B                      pop ebx
@@ -42,6 +42,16 @@ B8 = mov eax, xxx
 BB = mov ebx, xxx
 
 BB-B8 = 3
+
+
+
+
+instr              gives out    correct
+mov ebx, edx         89 D0       89 D3
+mov ebx, eax         89 C0       89 C3
+mov ebx, ecx         89 C8       89 CB
+mov ebx, ebx         89 D8       89 DB
+
 
 
 

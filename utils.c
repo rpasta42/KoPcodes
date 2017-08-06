@@ -20,24 +20,29 @@ bool is_hex_digit(char c) {
 
 
 //returns 0xDEADBAEF if can't parse
-int parse_hex_num(char* s) {
-
+int parse_hex_num(char* s, char* endp) {
+   /*
    int i;
    for (i = 0; i < strlen(s); i++) {
       if (!is_hex_digit(s[i]) && s[i] != ' ')
          return 0xDEADBAEF;
-   }
-   return strtol(s, NULL, 16);
+   }*/
+   return strtol(s, endp, 16);
 }
 
 //returns 0xDEADBAEF if can't parse
-int parse_human_num(char* s) {
+int parse_human_num(char* s, char* endp) {
    int i;
-   for (i = 0; i < strlen(s); i++) {
+   int s_len = strlen(s);
+   /*for (i = 0; i < s_len; i++) {
       if (!is_digit(s[i]) && s[i] != ' ')
          return 0xDEADBAEF;
-   }
-   return strtol(s, NULL, 10);
+   }*/
+
+
+   //return strtol(s, NULL, 10);
+   return strtol(s, endp, 10);
+
 }
 
 
@@ -222,5 +227,38 @@ char* read_file(char *fname) {
 }
 
 
+void write_file(char* fname, char* data, int data_len) {
+   char* buff = NULL;
+   int flen, bytes_read;
+   FILE* f = fopen(fname, "wb");
+
+   if (f) {
+
+      int block_size = 1024;
+      int num_blocks = data_len / block_size;
+
+      /*while (data_len > 0) {
+         fwrite(data, block_size, 1,
+      }*/
+      fwrite(data, 1, data_len, f);
+	// Always remember to close the file.
+	fclose(f);
+   }
+   else {
+      printf("\nerrorr opening/writing file\n");
+   }
+   return buff;
+}
+
+void print_mem(char* bytes, int num_bytes) {
+   int i;
+   for (i = 0; i < num_bytes; i++) {
+      byte_t b = *(uint8_t*)(bytes+i);
+      //printf("__%i__", i);
+      if (b <= 0xF)
+         printf("0");
+      printf("%01X ", b);
+   }
+}
 
 

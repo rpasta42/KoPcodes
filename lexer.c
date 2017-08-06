@@ -47,8 +47,8 @@ lexed_line_t* lex(char* file, int *num_lines1) {
          have_comment = true;
          good_line = comment_split[0];
          //printf("\ncomment split:%s\n", good_line);
-         free(comment_split);
          free(comment_split[1]);
+         free(comment_split);
          free(line);
       }
 
@@ -59,6 +59,8 @@ lexed_line_t* lex(char* file, int *num_lines1) {
       //printf("\nbad_line %i:%s\ngood_line %i:%s\n", strlen(bad_line), bad_line, strlen(good_line), good_line);
       free(bad_line);
 
+      if (good_line[0] == ';')
+         continue;
 
       //instruction/operands split
       char** instr_op_split = split_at(good_line, " ");
@@ -115,6 +117,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
 
 char* instr_names_str[] = {
+   //"none",
    "section",
    "add",
    "and",
@@ -157,7 +160,7 @@ char* reg_names_str[] = {
 #define NUM_REGS RegEdx + 1
 
 
-bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {
+bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {
 
    bool have_arg = false;
 
@@ -169,6 +172,7 @@ bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_
       int cmp_res = strncmp(str_lex, test_name, test_name_len);
       if (cmp_res == 0) {
          *arg_t = ArgReg32;
+         //arg_v->reg_index = k;
          arg_v->reg_index = k;
          return true;
       }
@@ -179,7 +183,7 @@ bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_
       //..
       *arg_t = ArgConst;
 
-      int hex_num = parse_hex_num(str_lex+2);
+      int hex_num = parse_hex_num(str_lex+2, str_lex+lex_len);
 
       if (hex_num == 0xDEADBAEF) {
          printf("couldn't parse hex num: %s", str_lex);
@@ -194,7 +198,7 @@ bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_
    if (is_digit(str_lex[0])) {
       *arg_t = ArgConst;
 
-      int human_num = parse_human_num(str_lex);
+      int human_num = parse_human_num(str_lex, str_lex + lex_len);
       if (human_num == 0xDEADBAEF) {
          printf("couldn't parse number: %s", str_lex);
          return false;
@@ -210,7 +214,7 @@ bool extract_arg(char* str_lex, instr_arg_type_t* arg_t, instr_arg_value_t* arg_
       *arg_t = //Arg
    }*/
    *arg_t = LEX_SYM;
-   *arg_v->sym_str = str_lex;
+   arg_v->sym_str = str_lex;
 
    //printf("\ncouldn't parse argument: %s", str_lex);
    //return false;
@@ -238,6 +242,10 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
          lexeme_t* lexeme = &lexemes[j];
          char* str_lex = lexeme->str;
 
+         //printf("\nkk:%s", str_lex);
+
+         instructs[i].sym = NULL;
+
          if (!have_instr_name) {
 
             for (k = 0; k < NUM_INSTRUCTS; k++) {
@@ -251,133 +259,34 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
                }
             }
 
+            //instructs[i].name = OpNone;
+
+            //////ELSE
+            instructs[i].sym = str_lex;
+            have_instr_name = true;
+
             if (!have_instr_name) {
-               printf("\ncouldn't match instruction to opcode: %s", str_lex);
+               printf("\ncouldn't match instruction to assembly call: %s\n", str_lex);
                goto bad;
             }
-
-            continue;
          }
          else if (!have_fst_arg) {
-            bool good_fst = extract_arg(str_lex, &instructs[i].arg1_t, &instructs[i].arg1_v);
-            have_fst_arg = good_fst;
-
-            /*//first test if it's a register
-            for (k = 0; k < NUM_REGS; k++) {
-               char* test_name = reg_names_str[k];
-               int test_name_len = strlen(test_name);
-               int cmp_res = strncmp(str_lex, test_name, test_name_len);
-               if (cmp_res == 0) {
-                  instructs[i].arg1_t = ArgReg32;
-                  instructs[i].arg1_v.reg_index = k;
-                  have_fst_arg = true;
-               }
-            }
-
-            if (have_fst_arg)
-               continue;
-
-            if (str_lex[0] == '0' && str_lex[1] == 'x') {
-               //..
-               instructs[i].arg1_t = ArgConst;
-
-               int hex_num = parse_hex_num(str_lex+2);
-
-               if (hex_num == 0xDEADBAEF) {
-                  printf("couldn't parse hex num: %s", str_lex);
-                  goto bad;
-               }
-
-               instructs[i].arg1_v.const_num = hex_num;
-
-               have_fst_arg = true;
-            }
-
-            if (have_fst_arg)
-               continue;
-
-            if (is_digit(str_lex[0])) {
-               instructs[i].arg1_t = ArgConst;
-
-               int human_num = parse_human_num(str_lex);
-               if (human_num == 0xDEADBAEF) {
-                  printf("couldn't parse number: %s", str_lex);
-                  goto bad;
-               }
-
-               instructs[i].arg1_v.const_num = human_num;
-
-               //..
-               have_fst_arg = true;
-            }
-            */
-
+            have_fst_arg = extract_arg(str_lex, lexeme->len, &instructs[i].arg1_t, &instructs[i].arg1_v);
             if (!have_fst_arg) {
-               printf("\ncouldn't parse first argument: %s", lexeme->str);
+               printf("\ncouldn't parse first argument: %s\n", lexeme->str);
                goto bad;
             }
-            continue;
          }
          else if (!have_snd_arg) {
-            bool good_snd = extract_arg(str_lex, &instructs[i].arg2_t, &instructs[i].arg2_v);
-
-            /*//first test if it's a register
-            for (k = 0; k < NUM_REGS; k++) {
-               char* test_name = reg_names_str[k];
-               int test_name_len = strlen(test_name);
-               int cmp_res = strncmp(str_lex, test_name, test_name_len);
-               if (cmp_res == 0) {
-                  instructs[i].arg2_t = ArgReg32;
-                  instructs[i].arg2_v.reg_index = k;
-                  have_fst_arg = true;
-               }
-            }
-
-            if (have_snd_arg)
-               continue;
-
-            if (str_lex[0] == '0' && str_lex[1] == 'x') {
-               //..
-               instructs[i].arg2_t = ArgConst;
-
-               int hex_num = parse_hex_num(str_lex+2);
-
-               if (hex_num == 0xDEADBAEF) {
-                  printf("couldn't parse hex num: %s", str_lex);
-                  goto bad;
-               }
-
-               instructs[i].arg2_v.const_num = hex_num;
-
-               have_snd_arg = true;
-            }
-
-            if (have_snd_arg)
-               continue;
-
-            if (is_digit(str_lex[0])) {
-               instructs[i].arg2_t = ArgConst;
-
-               int human_num = parse_human_num(str_lex);
-               if (human_num == 0xDEADBAEF) {
-                  printf("couldn't parse number: %s", str_lex);
-                  goto bad;
-               }
-
-               instructs[i].arg2_v.const_num = human_num;
-
-               //..
-               have_snd_arg = true;
-            }
-            printf("%s", str_lex);*/
-
-            have_snd_arg = good_snd;
+            have_snd_arg = extract_arg(str_lex,
+                                       lexeme->len,
+                                       &instructs[i].arg2_t,
+                                       &instructs[i].arg2_v);
 
             if (!have_snd_arg) {
-               printf("\ncouldn't parse second argument: %s", str_lex);
+               printf("\ncouldn't parse second argument: %s\n", str_lex);
                goto bad;
             }
-            continue;
 
          }
          else {
@@ -394,6 +303,7 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
 
    bad_lex:;
    bad:;
+   printf("\nline:%i\n", i);
    free(instructs);
    return NULL;
 
@@ -409,6 +319,7 @@ void print_instructs(instr_t* instructs, int num_instructs) {
 
       j = 0;
       while (j++ < 2) {
+
          instr_arg_type_t arg_t;
          instr_arg_value_t arg_v;
          if (j == 1) {
@@ -427,10 +338,14 @@ void print_instructs(instr_t* instructs, int num_instructs) {
                printf("(reg)%s ", reg_names_str[arg_v.reg_index]);
                break;
             case ArgConst:
-               printf("#%i ", arg_v.const_num);
+               printf("(num#)%i ", arg_v.const_num);
+               break;
+            case ArgSym:
+               printf("(sym)%s ", arg_v.sym_str);
                break;
          }
       }
    }
+   printf("\n");
 }
 

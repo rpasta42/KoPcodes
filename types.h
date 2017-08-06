@@ -33,12 +33,6 @@ TYPE(lexed_line_t, struct) {
 
 /********PARSER*******/
 
-
-
-/*TYPE(tree_t, struct) {
-   lexeme
-} END_TYPE(tree_t);*/
-
 TYPE(reg_name_t, enum) {
    RegEax,
    RegEbx,
@@ -58,6 +52,7 @@ TYPE(instr_arg_type_t, enum) {
 } END_TYPE(instr_arg_type_t);
 
 TYPE(instr_name_t, enum) {
+   //OpNone,
    OpSection,
    OpAdd,
    OpAnd,
@@ -95,7 +90,9 @@ TYPE(instr_arg_value_t, union) {
 
 //typedef struct instr_t {} instr_t;
 TYPE(instr_t, struct) {
-   instr_name_t name;
+   instr_name_t name; //from instruction enum
+   //instr_name_sym
+   char* sym; //some custom crap
    instr_arg_type_t arg1_t;
    instr_arg_type_t arg2_t;
    instr_arg_value_t arg1_v;
