@@ -55,4 +55,8 @@ mov ebx, ebx         89 D8       89 DB
 
 
 
+====elf
+http://www.skyfree.org/linux/references/ELF_Format.pdf
+page 7 for order
+
 

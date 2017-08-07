@@ -3,10 +3,9 @@
 #include "utils.h"
 #include "tests.h"
 #include "main.h"
-
+#include "elf.h"
 
 int main(int nargs, char** args) {
-
    //run_tests();
    //return 0;
 
@@ -21,7 +20,22 @@ int main(int nargs, char** args) {
    }
 
 
-   run_asm(str);
+   int opcodes_len = NULL;
+   char* opcodes = run_asm(str, &opcodes_len);
+
+
+   //elf_conf_t conf;
+   //conf.
+
+   int elf_mem_len = NULL;
+   byte_t* elf_mem = gen_elf(/*&elf_conf,*/ &elf_mem_len,
+                             opcodes, opcodes_len);
+
+
+   write_file("kopcode.elf.test", elf_mem, elf_mem_len);
+
+   return;
+
 
    //printf("%i", is_alpha('a'));
 

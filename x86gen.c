@@ -1,15 +1,7 @@
-
-
-#define OP_MOV_R32_R32 0xC089
-#define OP_MOV_R32_C 0xB8
-
-#define OP_EAX 0x0
-#define OP_ECX 0x1
-#define OP_EDX 0x2
-#define OP_EBX 0x3
-/*#define EBX_ (EAX_+3)
-#define ECX_ (EBX_+3)
-#define EDX_ (ECX_+3)*/
+#include "types.h"
+#include "utils.h"
+#include "main.h"
+#include "x86gen.h"
 
 extern char* reg_names_str[];
 extern char* instr_names_str[];
@@ -46,66 +38,11 @@ byte_t op_gen_reg(instr_arg_value_t* arg_v) {
 }
 
 
-void print_mem(char* bytes, int num_bytes) {
-   int i;
-   for (i = 0; i < num_bytes; i++) {
-      byte_t b = *(uint8_t*)(bytes+i);
-      //printf("__%i__", i);
-      if (b <= 0xF)
-         printf("0");
-      printf("%01X ", b);
-   }
-}
-
-//print instruction and assembled code side by side
-//mem_index is current instruction start in mem
-//op_len is current instruction length
-void print_side_by_side(instr_t* instruct, char* mem, int mem_index, int op_len)
-{
-   //print_instruct
-   printf("\n%s ", instr_names_str[instruct->name]);
-   int j;
-   j = 0;
-   while (j++ < 2) {
-
-      instr_arg_type_t arg_t;
-      instr_arg_value_t arg_v;
-      if (j == 1) {
-         arg_t = instruct->arg1_t;
-         arg_v = instruct->arg1_v;
-      } else if (j == 2) {
-         arg_t = instruct->arg2_t;
-         arg_v = instruct->arg2_v;
-      }
-
-      switch (arg_t) {
-         case ArgNone:
-            printf("(none) ");
-            break;
-         case ArgReg32:
-            printf("(reg)%s ", reg_names_str[arg_v.reg_index]);
-            break;
-         case ArgConst:
-            printf("(num#)%i ", arg_v.const_num);
-            break;
-         case ArgSym:
-            printf("(sym)%s ", arg_v.sym_str);
-            break;
-      }
-   }
-   //end print_instruct
-
-
-   printf("\t\t");
-   //printf("\nhex:0x%08x\n", *((uint32_t*)opcode));
-   print_mem(mem, op_len);
-   printf("\n");
-}
-
 
 //mem_index contains where we should place next instruction
 //op_gen_* functions increment it after adding
-void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index) {
+void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index)
+{
 
    instr_arg_type_t arg1_t = instruct->arg1_t;
    instr_arg_type_t arg2_t = instruct->arg2_t;
@@ -168,7 +105,8 @@ void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index) {
 
 //converts instr_t to x86 opcode
 //ret_size is set to size of return pointer
-char* gen_op(instr_t* instructs, int num_instructs, int* ret_size) {
+char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
+{
    *ret_size = 5*num_instructs;
    char* op = malloc(*ret_size);
    memset(op, 0, *ret_size);
@@ -205,7 +143,8 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size) {
 
 
 
-void run_asm(char* str) {
+byte_t* run_asm(char* str, int* ret_len)
+{
    int num_lines;
    lexed_line_t* lexed = lex(str, &num_lines);
 
@@ -223,6 +162,9 @@ void run_asm(char* str) {
    char* opcode = gen_op(instructs, num_lines, &opcode_len);
 
    write_file("kopcode.test", opcode, opcode_len);
+
+   *ret_len = opcode_len;
+   return opcode;
 
    return;
 }

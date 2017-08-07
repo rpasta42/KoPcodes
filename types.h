@@ -118,28 +118,9 @@ enum opcodes {
 */
 
 
-
-
 /******END PARSER*****/
 
 
-/***********ELF*******/
-
-typedef struct elf32_header_t {
-   char magic[4];
-
-} PACKED elf32_header_t;
-
-
-inline void init_header(elf32_header_t* header) {
-   char* elf_str = "ELF";
-
-
-   header->magic[0] = 0x7f;
-   memcpy(&header->magic[1], elf_str, 3);
-}
-
-/*******END ELF*******/
 
 
 

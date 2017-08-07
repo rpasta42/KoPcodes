@@ -41,8 +41,9 @@ char* read_file(char* fname);
 void write_file(char* fname, char* data, int data_len);
 
 
-//prints memory in hexa-decimal
+//prints memory in hexadecimal
 void print_mem(char* bytes, int num_bytes);
 
 
 #endif //UTILS_H_INCLUDE
+

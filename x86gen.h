@@ -13,5 +13,9 @@
 #define EDX_ (ECX_+3)*/
 
 
+byte_t* run_asm(char* str, int* ret_len);
+char* gen_op(instr_t* instructs, int num_instructs, int* ret_size);
+
+
 #endif //X86GEN_H_INCLUDE
 
