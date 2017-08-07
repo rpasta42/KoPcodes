@@ -32,8 +32,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'c'
-setlocal filetype=c
+if &filetype != 'cpp'
+setlocal filetype=cpp
 endif
 setlocal fixendofline
 setlocal foldcolumn=0
@@ -92,8 +92,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'c'
-setlocal syntax=c
+if &syntax != 'cpp'
+setlocal syntax=cpp
 endif
 setlocal tabstop=6
 setlocal tagcase=
@@ -107,17 +107,43 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-5,15fold
-17,26fold
-29,37fold
-39,54fold
-57,64fold
-68,84fold
-let s:l = 135 - ((37 * winheight(0) + 22) / 44)
+10,13fold
+15,23fold
+25,35fold
+39,43fold
+46,50fold
+56,67fold
+37,69fold
+72,105fold
+8,108fold
+114,131fold
+134,139fold
+141,156fold
+112,158fold
+165,182fold
+165,182fold
+162,184fold
+8
+normal! zo
+37
+normal! zo
+37
+normal! zc
+112
+normal! zo
+112
+normal! zc
+162
+normal! zo
+165
+normal! zo
+162
+normal! zc
+let s:l = 108 - ((107 * winheight(0) + 33) / 67)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-135
+108
 normal! 0
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost
