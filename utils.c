@@ -27,7 +27,7 @@ int parse_hex_num(char* s, char* endp) {
       if (!is_hex_digit(s[i]) && s[i] != ' ')
          return 0xDEADBAEF;
    }*/
-   return strtol(s, endp, 16);
+   return strtol(s, &endp, 16);
 }
 
 //returns 0xDEADBAEF if can't parse
@@ -41,7 +41,7 @@ int parse_human_num(char* s, char* endp) {
 
 
    //return strtol(s, NULL, 10);
-   return strtol(s, endp, 10);
+   return strtol(s, &endp, 10); //TODO: & may cas problem, or is it correct?
 
 }
 
@@ -267,7 +267,6 @@ char* read_file(char *fname) {
 
 
 void write_file(char* fname, char* data, int data_len) {
-   char* buff = NULL;
    int flen, bytes_read;
    FILE* f = fopen(fname, "wb");
 
@@ -286,7 +285,6 @@ void write_file(char* fname, char* data, int data_len) {
    else {
       printf("\nerrorr opening/writing file\n");
    }
-   return buff;
 }
 
 void print_mem(char* bytes, int num_bytes) {

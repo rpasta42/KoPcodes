@@ -111,7 +111,7 @@ void run_tests() {
 
    instr_t* instructs = gen_instructions(lexed, num_lines);
 
-   printf("\nerror if 0: %i\n", (uint32_t)instructs);
+   printf("\nerror if 0: %lu\n", (uint64_t)instructs);
    if (instructs) {
       print_instructs(instructs, num_lines);
    }

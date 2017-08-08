@@ -1,6 +1,6 @@
+#include <ctype.h>
 #include "main.h"
 #include "types.h"
-
 
 void init_lexeme(lexeme_t* lex, char* line, int start, int len) {
 

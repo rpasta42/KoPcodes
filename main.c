@@ -4,6 +4,7 @@
 #include "tests.h"
 #include "main.h"
 #include "elf.h"
+#include "x86gen.h"
 
 int main(int nargs, char** args) {
    ///***UNIT TESTS
@@ -31,21 +32,20 @@ int main(int nargs, char** args) {
    }
 
 
-   int opcodes_len = NULL;
+   int opcodes_len = 0;
    char* opcodes = run_asm(str, &opcodes_len);
 
 
    //elf_conf_t conf;
    //conf.
+   //elf_mem = gen_elf(/*&elf_conf,*/ &elf_mem_len,
+   //                          opcodes, opcodes_len);
 
-   int elf_mem_len = NULL;
-   byte_t* elf_mem = gen_elf(/*&elf_conf,*/ &elf_mem_len,
-                             opcodes, opcodes_len);
+   elf_file_t* elf = gen_elf(opcodes, opcodes_len);
 
+   write_file("kopcode.elf.test", elf->mem, elf->mem_len);
 
-   write_file("kopcode.elf.test", elf_mem, elf_mem_len);
-
-   return;
+   return 0;
 
 
    //printf("%i", is_alpha('a'));

@@ -98,7 +98,7 @@ void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index)
       op_len = 0;
    }
 
-   print_side_by_side(instruct, mem, mem_index, op_len);
+   print_side_by_side(instruct, mem, *mem_index, op_len);
 
    *mem_index += op_len;
 }
@@ -142,7 +142,7 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
 }
 
 
-
+//generates opcode, writes them to kopcode.test and returns the bytes
 byte_t* run_asm(char* str, int* ret_len)
 {
    int num_lines;
@@ -153,20 +153,18 @@ byte_t* run_asm(char* str, int* ret_len)
 
    instr_t* instructs = gen_instructions(lexed, num_lines);
 
-   printf("\nerror if 0: %i\n", (uint64_t)instructs);
+   printf("\nerror if 0: %lu\n", (uint64_t)instructs);
    if (instructs) {
       print_instructs(instructs, num_lines);
    }
 
-   int opcode_len = NULL;
+   int opcode_len = 0;
    char* opcode = gen_op(instructs, num_lines, &opcode_len);
 
    write_file("kopcode.test", opcode, opcode_len);
 
    *ret_len = opcode_len;
    return opcode;
-
-   return;
 }
 
 

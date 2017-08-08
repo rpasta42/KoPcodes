@@ -1,14 +1,6 @@
 #include "elf.h"
 
 
-void elf_file_print_debug(elf_file_t* elf_file) {
-   elf_print_header(elf_file->header);
-   elf_print_sect_table(elf_file);
-   elf_print_prog_table(elf_file);
-   elf_print_string_table(elf_file);
-}
-
-
 void elf_print_prog_table(elf_file_t* elf_file) {
 
    elf32_program_header_t* prog_header = elf_file->prog_header_entries;
@@ -79,7 +71,7 @@ char* print_sect_type(uint32_t sect_type) {
          break;
    }
 
-   return true;
+   return false;
 }
 
 
@@ -130,12 +122,11 @@ void elf_print_sect_table(elf_file_t* elf_file) {
 
       printf("\t%i\t%i\t%i\t    %i",
              sect->sect_link, sect->sect_info,
-             sect->sect_addr_align, sect->sect_ent_size,
-             sect->sect_ent_size);
+             sect->sect_addr_align, sect->sect_ent_size);
 
    }
 
-
+   return;
 
    elf_print_sect_err:
    printf("\nerror!\n");
@@ -149,7 +140,7 @@ void elf_print_header(elf32_header_t* header) {
    if (!(0 == strncmp("ELF", &header->ident.ident_bytes[1], 3)))
       is_elf = false;
 
-   print_mem(header, 3);
+   print_mem((char*)header, 3);
 
    if (is_elf)
       printf("\nmagic number match");
@@ -267,7 +258,7 @@ void elf_print_header(elf32_header_t* header) {
 
 
    printf("\nentry_addr (bytes):");
-   print_mem(&header->entry_addr, 4);
+   print_mem((char*)&header->entry_addr, 4);
    printf("\nentry_addr (hex): 0x%04X", header->entry_addr);
    printf("\nentry_addr decimal: %i", header->entry_addr);
 
@@ -313,4 +304,11 @@ void elf_print_string_table(elf_file_t* f) {
 
 }
 
+
+void elf_file_print_debug(elf_file_t* elf_file) {
+   elf_print_header(elf_file->header);
+   elf_print_sect_table(elf_file);
+   elf_print_prog_table(elf_file);
+   elf_print_string_table(elf_file);
+}
 

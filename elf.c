@@ -31,7 +31,7 @@ void elf_init_header(elf32_header_t* header,
    header->machine_type = ELF_MACHINE_386;
    header->version = ELF_VERSION_CURRENT;
 
-   header->flags = NULL;
+   header->flags = 0;
 
    header->header_size = sizeof(elf32_header_t);
 
@@ -143,9 +143,9 @@ elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
    /* figure out the pointers based on mem */
    //TODO: ??? where does the program start?? rn at end of prog table
    new_opcodes_p = mem + opcodes_i;
-   header = mem;
-   prog_header_entries = mem + prog_header_i;
-   sect_header_entries = mem + sect_header_i;
+   header = (elf32_header_t*)mem;
+   prog_header_entries = (elf32_program_header_t*)mem + prog_header_i;
+   sect_header_entries = (elf32_section_header_t*)mem + sect_header_i;
 
    /* *****************************/
    /* start initializing elf data */
@@ -225,11 +225,13 @@ elf_file_t* read_elf(char* fname)
    elf_file->mem = mem;
    elf_file->mem_len = mem_len;
 
-   elf_file->header = mem;
+   elf_file->header = (elf32_header_t*)mem;
 
-   elf_file->prog_header_entries = mem + elf_file->header->prog_head_off;
+   elf_file->prog_header_entries = (elf32_program_header_t*)
+                                       mem + elf_file->header->prog_head_off;
 
-   elf_file->sect_header_entries = mem + elf_file->header->sect_head_off;
+   elf_file->sect_header_entries = (elf32_section_header_t*)
+                                       mem + elf_file->header->sect_head_off;
 
 
    elf32_section_header_t* str_sect_header = get_string_table_header(elf_file);
@@ -242,7 +244,7 @@ elf_file_t* read_elf(char* fname)
    }
    else {
       elf_file->str_sect_table_header = NULL;
-      elf_file->str_sect_offset = NULL;
+      elf_file->str_sect_offset = 0;
       elf_file->str_sect_strings_p =  NULL;
    }
 

@@ -236,6 +236,10 @@ TYPE(elf_file_t, struct) {
 } END_TYPE(elf_file_t);
 
 
+elf_file_t* read_elf(char* fname);
+elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes);
+
+
 
 void elf_init_header(elf32_header_t* header,
                      uint16_t elf_file_type);
@@ -268,6 +272,10 @@ void elf_init_section_header(elf32_section_header_t* sect_head,
                              uint32_t addr_align,
                              uint32_t ent_size);
 
+
+
+//elf_info.c
+void elf_file_print_debug(elf_file_t* elf_file);
 
 /*
 linking view:
