@@ -1,6 +1,13 @@
 #include "elf.h"
 
 
+void elf_file_print_debug(elf_file_t* elf_file) {
+   elf_print_header(elf_file->header);
+   elf_print_sect_table(elf_file);
+   elf_print_prog_table(elf_file);
+   elf_print_string_table(elf_file);
+}
+
 
 void elf_print_prog_table(elf_file_t* elf_file) {
 
@@ -292,13 +299,17 @@ void elf_print_header(elf32_header_t* header) {
 
 void elf_print_string_table(elf_file_t* f) {
    elf32_header_t* header = f->header;
+   int strings_len = f->str_sect_strings_len;
 
-   printf("\nstring table id:%i\n", header->sect_head_section_name);
+   printf("\n\nstring table len: %i", strings_len);
+
+   printf("\nstring table id: %i\nstrings table data: ",
+          header->sect_head_section_name);
    char* strings = f->str_sect_strings_p;
-   for (int i = 0; i < 50; i++) {
+   for (int i = 0; i < strings_len; i++) {
       printf("%c", strings[i]);
    }
-
+   printf("\n");
 
 }
 

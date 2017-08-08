@@ -6,19 +6,19 @@
 #include "elf.h"
 
 int main(int nargs, char** args) {
+   ///***UNIT TESTS
    //run_tests();
    //return 0;
 
+   ///***readelf alternative:
+
    //elf_file_t* elf_file = read_elf("a.out");
    elf_file_t* elf_file = read_elf("opcodes.ex");
+   elf_file_print_debug(elf_file);
 
-   elf_print_header(elf_file->header);
-   elf_print_sect_table(elf_file);
-   elf_print_prog_table(elf_file);
-   elf_print_string_table(elf_file);
    return 0;
 
-   ///
+   ///***assembler
 
    char* str;
    if (true) { //(nargs != 2)

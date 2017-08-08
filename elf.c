@@ -98,13 +98,11 @@ void elf_init_section_header(elf32_section_header_t* sect_head,
 
 
 
-
-byte_t* gen_elf(int* ret_len,
-                byte_t* opcodes, int len_opcodes)
+elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
 {
    //
-   int num_prog_header_entries = 1;
-   int num_sect_header_entries = 2;
+   int num_prog_header_entries = 2;
+   int num_sect_header_entries = 5;
 
    /* mem contains future file */
    byte_t* mem;
@@ -125,7 +123,7 @@ byte_t* gen_elf(int* ret_len,
 
    /* TODO: section sizes should be calculated here */
 
-   /* figure out the total size of our file */
+   /* figure out the total size of our file and allocate needed memory */
    int mem_len = ELF32_HEADER_SIZE + len_opcodes
                  + sect_table_size
                  + prog_table_size;
@@ -180,8 +178,21 @@ byte_t* gen_elf(int* ret_len,
    //memcpy(elf_mem, &header, ELF32_HEADER_SIZE);
    memcpy(mem + ELF32_HEADER_SIZE, opcodes, len_opcodes);
 
-   *ret_len = mem_len;
-   return mem;
+   elf_file_t* f = malloc(sizeof(elf_file_t));
+   f->mem = mem;
+   f->mem_len =  mem_len;
+
+   f->num_prog_header_entries = num_prog_header_entries;
+   f->num_sect_header_entries = num_sect_header_entries;
+
+   f->header = header;
+   f->prog_header_entries = prog_header_entries;
+   f->sect_header_entries = sect_header_entries;
+
+   //TODO: generate text and string section
+
+
+   return f;
 }
 
 
@@ -227,10 +238,10 @@ elf_file_t* read_elf(char* fname)
 
       elf_file->str_sect_offset = str_sect_header->sect_offset;
       elf_file->str_sect_strings_p = elf_file->str_sect_offset + mem;
+      elf_file->str_sect_strings_len = str_sect_header->sect_size;
    }
    else {
       elf_file->str_sect_table_header = NULL;
-
       elf_file->str_sect_offset = NULL;
       elf_file->str_sect_strings_p =  NULL;
    }

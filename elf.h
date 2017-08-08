@@ -208,7 +208,6 @@ TYPE(elf32_program_header_t, struct) {
 /*******END elf32_program_header_t*******/
 
 
-
 /*TYPE(elf_conf_t, struct) {
    elf_machine_t machine_type;
    uint16_t elf_file_type;
@@ -232,6 +231,7 @@ TYPE(elf_file_t, struct) {
    elf32_section_header_t* str_sect_table_header;
    uint32_t str_sect_offset;
    char* str_sect_strings_p;
+   int str_sect_strings_len;
 
 } END_TYPE(elf_file_t);
 
