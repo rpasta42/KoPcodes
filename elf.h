@@ -7,6 +7,8 @@
 
 /***********elf32_header_t*******/
 
+#define ELF32_HEADER_SIZE sizeof(elf32_header_t)
+
 TYPE(elf_version_t, enum) {
    ELF_VERSION_NONE,    //0 = INVALID
    ELF_VERSION_CURRENT, //1 = CURRENT
@@ -33,6 +35,7 @@ TYPE(elf_machine_t, enum) {
    ELF_MACHINE_860,           // 7 = Intel 80860
    ELF_MACHINE_MIPS           // 8 = MIPS RS3000
 } END_TYPE(elf_machine_t);
+#define ELF_MACHINE_x86_64 62
 
 /*********elf32_ident_t*********/
 
@@ -45,8 +48,8 @@ TYPE(elf_class_t, enum) {
 
 TYPE(elf_data_t, enum) {
    ELF_DATA_NONE, //0 = INVALID
-   ELF_DATA2_LSB, //1 = 32-bit objects
-   ELF_DATA2_MSB  //2 = 64-bit objects
+   ELF_DATA2_LSB, //1 = lsb
+   ELF_DATA2_MSB  //2 = msb
 } END_TYPE(elf_data_t);
 
 
@@ -82,7 +85,7 @@ TYPE(elf32_header_t, struct) {
    elf_version_t version : 32;
 
    //contains virtual address to which system first transfers control
-   uint32_t entry_addr : 32; //elf32_addr_t
+   uint32_t entry_addr; //elf32_addr_t
    uint32_t prog_head_off : 32; //program header table file offset from start of file
    uint32_t sect_head_off : 32; //section header table file offset
 
@@ -110,6 +113,18 @@ TYPE(elf32_header_t, struct) {
 
 
 /********elf32_section_header_t**********/
+
+#define ELF32_SECTION_HEADER_ENTRY_SIZE sizeof(elf32_section_header_t)
+
+//TYPE(elf_sect_head_indices_t, enum)
+#define ELF_SECT_IN_UNDEF 0
+#define ELF_SECT_IN_LORESERVE   0xff00
+#define ELF_SECT_IN_LOPROC      0xff00
+#define ELF_SECT_IN_HIPROC      0xff1f
+#define ELF_SECT_IN_ABS         0xfff1
+#define ELF_SECT_IN_COMMON      0xfff2
+#define ELF_SECT_IN_HIRESERVE   0xffff
+//END_TYPE(elf_sect_head_indices_t)
 
 //TYPE(elf_sect_head_type_t, enum)
 #define ELF_SECT_TYPE_NULL                0
@@ -161,6 +176,20 @@ TYPE(elf32_section_header_t, struct) {
 
 /********elf32_program_header_t**********/
 
+#define ELF32_PROGRAM_HEADER_ENTRY_SIZE sizeof(elf32_program_header_t)
+
+//TYPE(elf_prog_head_type_t, struct)
+#define ELF_SEG_TYPE_NULL               0
+#define ELF_SEG_TYPE_LOAD               1
+#define ELF_SEG_TYPE_DYNAMIC            2
+#define ELF_SEG_TYPE_INTERP             3
+#define ELF_SEG_TYPE_NOTE               4
+#define ELF_SEG_TYPE_SHLIB              5
+#define ELF_SEG_TYPE_PHDR               6
+#define ELF_SEG_TYPE_LOPROC    0x70000000
+#define ELF_SEG_TYPE_HIPROC    0x7fffffff
+//END_TYPE(elf_prog_head_type_t, struct)
+
 
 TYPE(elf32_program_header_t, struct) {
 
@@ -191,6 +220,23 @@ TYPE(elf32_program_header_t, struct) {
 } END_TYPE(elf_conf_t);*/
 
 
+/**********************FUNCTIONS**********************/
+
+TYPE(elf_file_t, struct) {
+   byte_t* mem;
+   uint32_t mem_len;
+
+   uint32_t num_prog_header_entries;
+   uint32_t num_sect_header_entries;
+
+   elf32_header_t* header;
+   elf32_program_header_t* prog_header_entries;
+   elf32_section_header_t* sect_header_entries;
+   byte_t* opcode;
+
+} END_TYPE(elf_file_t);
+
+
 
 void elf_init_header(elf32_header_t* header,
                      uint16_t elf_file_type);
@@ -208,6 +254,20 @@ void elf_set_header_sect_table(elf32_header_t* header,
                                uint32_t offset,
                                uint16_t entry_size,
                                uint16_t num_entries);
+
+
+
+void elf_init_section_header(elf32_section_header_t* sect_head,
+                             uint32_t name,
+                             uint32_t type,
+                             uint32_t flags,
+                             uint32_t addr,
+                             uint32_t offset,
+                             uint32_t size,
+                             uint32_t link,
+                             uint32_t info,
+                             uint32_t addr_align,
+                             uint32_t ent_size);
 
 
 /*

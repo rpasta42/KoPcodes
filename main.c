@@ -9,6 +9,14 @@ int main(int nargs, char** args) {
    //run_tests();
    //return 0;
 
+   //elf_file_t* elf_file = read_elf("a.out");
+   elf_file_t* elf_file = read_elf("opcodes.ex");
+
+   elf_print_header(elf_file->header);
+   return 0;
+
+   ///
+
    char* str;
    if (true) { //(nargs != 2)
       str = read_file("test.asm");//read_file("life2.asm");//return -1;

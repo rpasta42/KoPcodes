@@ -38,6 +38,7 @@ char** split_at(string_t str, string_t split);
 char** split_at_every(string_t str, string_t split, int* num_splits);
 
 char* read_file(char* fname);
+byte_t* read_file_bin(char *fname, int* len);
 void write_file(char* fname, char* data, int data_len);
 
 

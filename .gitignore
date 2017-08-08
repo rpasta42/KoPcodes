@@ -2,5 +2,6 @@ a.out
 *.swp
 #todo: remove
 *.test
+*.ex
 *.idb
 *.o

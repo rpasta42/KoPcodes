@@ -188,6 +188,45 @@ char** split_at_every(string_t str, string_t split, int* num_splits) {
 }
 
 
+byte_t* read_file_bin(char *fname, int* len) {
+   byte_t *buff = NULL;
+   int flen, bytes_read;
+   FILE *f = fopen(fname, "r");
+
+   if (f) {
+      //printf("\nopened file successfully\n");
+	fseek(f, 0, SEEK_END); //last byte of the file
+
+	flen = ftell(f); //offset first to last byte (file size)
+      *len = flen;
+
+	rewind(f); // go back to the start of the file
+
+	buff = (char*) malloc(sizeof(char) * (flen + 1) );
+
+	//read the whole file
+	bytes_read = fread(buff, sizeof(char), flen, f);
+
+	// fread doesn't set it so put a \0 in the last position for string
+	buff[flen] = '\0';
+
+	if (flen != bytes_read) {
+	   //error
+
+         printf("failed to read file\n");
+	   free(buff);
+	   buff = NULL;
+	}
+
+	// Always remember to close the file.
+	fclose(f);
+   }
+   else {
+      printf("\nerrorr opening/reading file\n");
+   }
+   return buff;
+}
+
 char* read_file(char *fname) {
    char *buff = NULL;
    int flen, bytes_read;

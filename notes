@@ -57,6 +57,22 @@ mov ebx, ebx         89 D8       89 DB
 
 ====elf
 http://www.skyfree.org/linux/references/ELF_Format.pdf
-page 7 for order
 
+page 7 PART 1
+   page 7
+      for order struct order
+   p 22
+      string table
+   p 27
+      relocation
+
+page 31 PART 2
+   p 33
+      program header
+
+
+elf types
+   relocatable file = object file
+   executable file = program for execution
+   shared object file = ld (link editor) same as dll
 
