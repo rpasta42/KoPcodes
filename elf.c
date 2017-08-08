@@ -39,10 +39,12 @@ void elf_init_header(elf32_header_t* header,
 
 void elf_set_header_misc(elf32_header_t* header,
                          uint32_t entry_addr,
-                         uint32_t flags)
+                         uint32_t flags,
+                         uint16_t str_section_index)
 {
    header->entry_addr = entry_addr;
    header->flags = flags;
+   header->sect_head_section_name = str_section_index;
 }
 
 
@@ -72,124 +74,174 @@ void elf_set_header_sect_table(elf32_header_t* header,
 
 
 
-void elf_init_section_header(elf32_section_header_t* sect_head,
-                             uint32_t name,
-                             uint32_t type,
-                             uint32_t flags,
-                             uint32_t addr,
-                             uint32_t offset,
-                             uint32_t size,
-                             uint32_t link,
-                             uint32_t info,
-                             uint32_t addr_align,
-                             uint32_t ent_size)
+
+#define STR_INDEX_TEXT 47
+#define STR_INDEX_SHSTRLAB 16
+#define STR_INDEX_DATA (STR_INDEX_TEXT+5)
+byte_t* get_string_table(int* string_table_len)
 {
-   sect_head->sect_name = name;
-   sect_head->sect_type = type;
-   sect_head->sect_flags = flags;
-   sect_head->sect_addr = addr;
-   sect_head->sect_offset = offset;
-   sect_head->sect_size = size;
-   sect_head->sect_link = link;
-   sect_head->sect_info = info;
-   sect_head->sect_addr_align = addr_align;
-   sect_head->sect_ent_size = ent_size;
+   //TODO: table[] on stack or bss or waddup?
+   char table[] = ".symtab\0.strtab\0.shstrtab\0.note\0.gnu\0.build-id\0.text\0.data";
+   *string_table_len = sizeof(table);
+   printf("\nstring table size: %i\n", *string_table_len);
+   char* ret = malloc(*string_table_len);
+   memcpy(ret, table, *string_table_len);
+   return ret;
+}
+
+void elf_init_prog_headers(elf_file_t* f)
+{
+
+   uint32_t seg_1_mem_file_size = 0x00131;
+   uint32_t seg_2_mem_file_size = 0xd;
+   uint32_t seg2_offset = ELF_DATA_OFF;
+
+   //prog text seg
+   elf_init_prog_header(&f->prog_header_entries[0],
+                        ELF_SEG_TYPE_LOAD, //type
+                        0, //offset
+                        ELF_LOAD_1_ADDR, //virt address
+                        ELF_LOAD_1_ADDR, //physical address
+                        seg_1_mem_file_size, //file_size
+                        seg_1_mem_file_size, //mem_sizes
+                        ELF_PROG_FLAG_R | ELF_PROG_FLAG_X,
+                        0x1000);
+
+   //figure out data segment offset
+
+   //data segment
+   elf_init_prog_header(&f->prog_header_entries[1],
+                        ELF_SEG_TYPE_LOAD, //type
+                        ELF_SEG_2_OFFSET, //offset
+                        ELF_DATA_ADDR, //virt
+                        ELF_DATA_ADDR, //phys
+                        seg_2_mem_file_size, //file_size
+                        seg_2_mem_file_size, //mem_size
+                        ELF_PROG_FLAG_R | ELF_PROG_FLAG_W,
+                        0x4);
+
+
+}
+
+
+void init_sect_prog_tables(elf_file_t* f,
+                            byte_t* text_data, uint32_t text_size)
+{
+   /* first calculate and store sizes and indices,
+    * then set pointers to (indices + mem)
+    */
+
+   /* we figure out sizes for tables */
+   int sect_table_size =
+         (f->num_sect_header_entries * ELF32_SECTION_HEADER_ENTRY_SIZE);
+
+   int prog_table_size =
+         (f->num_prog_header_entries * ELF32_PROGRAM_HEADER_ENTRY_SIZE);
+
+   int string_table_size = 0;
+   byte_t* string_table_data = get_string_table(&string_table_size);
+
+   int data_table_size = 0;
+
+
+   f->prog_header_offset = ELF32_HEADER_SIZE;
+   f->segments_offset = f->prog_header_offset + prog_table_size;
+
+   int total_segments_size = data_table_size + text_size + string_table_size;
+
+   f->sect_header_offset = f->segments_offset + total_segments_size;
+
+   f->mem_len = f->sect_header_offset + sect_table_size;
+   f->mem = malloc(f->mem_len);
+
+   f->header = (elf32_header_t*)f->mem;
+   f->prog_header_entries = (elf32_program_header_t*)(f->mem + f->prog_header_offset);
+   f->sect_header_entries = (elf32_section_header_t*)(f->mem + f->sect_header_offset);
+
+
+   //TODO: need to update mem_len first
+   //int sect_header_i = mem_len - sect_table_size;
+   elf_init_section_header(&f->sect_header_entries[0],
+                           0, ELF_SECT_TYPE_NULL,  //name, type
+                           0, 0, 0, 0, //flags, address, file offset, size
+                           ELF_SECT_IN_UNDEF, //link
+                           0, 0, 0); //info, addr_align, ent_size
+
+   elf_init_section_header(&f->sect_header_entries[1],
+                           STR_INDEX_TEXT, ELF_SECT_TYPE_PROGBITS,
+                           ELF_SECT_FLAG_ALLOC | ELF_SECT_FLAG_EXECINSTR,
+                           ELF_ENTRY_ADDR, //address
+                           f->segments_offset, text_size, //file offset, size
+                           ELF_SECT_IN_UNDEF, //link
+                           0, 16, 0); //info, addr_align, ent_size
+
+   elf_init_section_header(&f->sect_header_entries[ELF_STR_SECTION_INDEX],
+                           STR_INDEX_SHSTRLAB, ELF_SECT_TYPE_STRTAB,
+                           0, 0, //flag, address
+                           f->segments_offset + text_size, //file offset
+                           string_table_size, //size
+                           ELF_SECT_IN_UNDEF, //link
+                           0, 1, 0); //info, addr_align, ent_size
+
+
+   elf_init_section_header(&f->sect_header_entries[ELF_DATA_SECT_INDEX],
+                           STR_INDEX_DATA, ELF_SECT_TYPE_PROGBITS,
+                           ELF_SECT_FLAG_ALLOC | ELF_SECT_FLAG_WRITE, //flag
+                           ELF_DATA_ADDR, //address
+                           //file offset
+                           f->segments_offset + text_size + string_table_size,
+                           0, //size
+                           0,  //link
+                           0, 4, 0); //info, addr_align, ent_size
+
+   elf_init_prog_headers(f);
+
+   memcpy(f->mem + f->segments_offset, text_data, text_size);
+   memcpy(f->mem + f->segments_offset + text_size,
+          string_table_data, string_table_size);
+
+   free(string_table_data);
+
 }
 
 
 
 elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
 {
-   //
-   int num_prog_header_entries = 2;
-   int num_sect_header_entries = 5;
+   elf_file_t* f = malloc(sizeof(elf_file_t));
+   f->num_prog_header_entries = 2;
+   f->num_sect_header_entries = 4;
 
-   /* mem contains future file */
-   byte_t* mem;
-
-   /* all of this point will point to a location in mem */
-   elf32_header_t* header;
-   byte_t* new_opcodes_p;
-   elf32_program_header_t* prog_header_entries;
-   elf32_section_header_t* sect_header_entries;
-
-
-   /* we figure out sizes for tables */
-   int sect_table_size =
-         (num_sect_header_entries * ELF32_SECTION_HEADER_ENTRY_SIZE);
-
-   int prog_table_size =
-         (num_prog_header_entries * ELF32_PROGRAM_HEADER_ENTRY_SIZE);
-
-   /* TODO: section sizes should be calculated here */
-
-   /* figure out the total size of our file and allocate needed memory */
-   int mem_len = ELF32_HEADER_SIZE + len_opcodes
-                 + sect_table_size
-                 + prog_table_size;
-
-
-   mem = malloc(mem_len);
-
-   /* TODO: first calculate and store sizes and indices,
-    * then set pointers to (indices + mem)
-    */
-   int prog_header_i = ELF32_HEADER_SIZE;
-   int opcodes_i = prog_header_i + ELF32_HEADER_SIZE;
-   int sect_header_i = mem_len - sect_table_size;
-
-
-
-   /* figure out the pointers based on mem */
-   //TODO: ??? where does the program start?? rn at end of prog table
-   new_opcodes_p = mem + opcodes_i;
-   header = (elf32_header_t*)mem;
-   prog_header_entries = (elf32_program_header_t*)(mem + prog_header_i);
-   sect_header_entries = (elf32_section_header_t*)(mem + sect_header_i);
+   init_sect_prog_tables(f, opcodes, len_opcodes);
 
    /* *****************************/
    /* start initializing elf data */
-   elf_init_header(header, ELF_TYPE_EXEC);
-   elf_set_header_prog_table(header,
-                             prog_header_i,
+   elf_init_header(f->header, ELF_TYPE_EXEC);
+   elf_set_header_prog_table(f->header,
+                             f->prog_header_offset,
                              ELF32_PROGRAM_HEADER_ENTRY_SIZE,
-                             num_prog_header_entries);
+                             f->num_prog_header_entries);
 
-   elf_set_header_sect_table(header,
-                             sect_header_i,
+   elf_set_header_sect_table(f->header,
+                             f->sect_header_offset,
                              ELF32_SECTION_HEADER_ENTRY_SIZE,
-                             num_sect_header_entries);
+                             f->num_sect_header_entries);
 
 
-
-   elf_init_section_header(&sect_header_entries[0],
-                           0, ELF_SECT_TYPE_NULL,  //mae, type
-                           0, 0, 0, 0, //flags, address, file offset, size
-                           ELF_SECT_IN_UNDEF, //link
-                           0, 0, 0); //info, addr_align, ent_size
+   //set 0 section here
+   //elf_init_section_header(&sect_header_entries[0],
 
    //elf_init_prog_header(&prog_header_entries[0]);
 
 
 
+   elf_set_header_misc(f->header, ELF_ENTRY_ADDR, 0,
+                       ELF_STR_SECTION_INDEX);
 
    //elf_set_header_misc
 
    //memcpy(elf_mem, &header, ELF32_HEADER_SIZE);
-   memcpy(mem + ELF32_HEADER_SIZE, opcodes, len_opcodes);
-
-   elf_file_t* f = malloc(sizeof(elf_file_t));
-   f->mem = mem;
-   f->mem_len =  mem_len;
-
-   f->num_prog_header_entries = num_prog_header_entries;
-   f->num_sect_header_entries = num_sect_header_entries;
-
-   f->header = header;
-   f->prog_header_entries = prog_header_entries;
-   f->sect_header_entries = sect_header_entries;
-
-   //TODO: generate text and string section
+   //memcpy(mem + ELF32_HEADER_SIZE, opcodes, len_opcodes);
 
 
    return f;

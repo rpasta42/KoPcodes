@@ -7,6 +7,19 @@
 #include "x86gen.h"
 
 int main(int nargs, char** args) {
+
+
+   int elf_prog_header_size = sizeof(elf32_program_header_t);
+   int total_headers = ELF32_HEADER_SIZE + elf_prog_header_size*3;
+
+   printf("elf header size: %i\nprog header size:%i\ntogether:%i\nhex:%04X\n\n",
+          ELF32_HEADER_SIZE,
+          elf_prog_header_size,
+          total_headers,
+          total_headers);
+
+
+
    ///***UNIT TESTS
    //run_tests();
    //return 0;
@@ -14,16 +27,23 @@ int main(int nargs, char** args) {
    ///***readelf alternative:
 
    //elf_file_t* elf_file = read_elf("a.out");
-   elf_file_t* elf_file = read_elf("opcodes.ex");
+
+   /**/
+   char* src_file = "kopcode.elf.test"; //"opcodes.ex";
+   elf_file_t* elf_file = read_elf(src_file);
    elf_file_print_debug(elf_file);
 
    return 0;
+   /**/
 
    ///***assembler
 
    char* str;
    if (true) { //(nargs != 2)
-      str = read_file("test.asm");//read_file("life2.asm");//return -1;
+      char* fname = "test.asm";
+      str = read_file(fname);
+      //read_file("life2.asm");
+      //return -1;
       printf("succ");
    }
    else {

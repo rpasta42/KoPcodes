@@ -76,3 +76,24 @@ elf types
    executable file = program for execution
    shared object file = ld (link editor) same as dll
 
+
+============================
+;opcodes.f
+
+0x94 	first section offset
+	ELF32_HEADER_SIZE + sizeof(elf32_program_header_t)*3
+
+.note_gnu.build-i
+	sizeof() = 0x24
+	alignment = 4
+
+.text
+	text_seg = 0x94 + 0x24 = 0xB8
+	0xB8 + 8 (for alignment) = C0
+
+
+
+
+
+
+

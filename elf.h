@@ -3,6 +3,20 @@
 
 #include "utils.h"
 
+#define ELF_ADDR_TEXT 0x080480c0
+#define ELF_OFF_TEXT 0xc0
+
+#define ELF_ADDR_DATA 0x08049134
+#define ELF_DATA_OFF 0x000134
+
+#define ELF_LOAD_1_ADDR 0x8048000 //both physical and virtual
+#define ELF_ENTRY_ADDR 0x80480C0
+#define ELF_SEG_2_OFFSET 0x134
+#define ELF_DATA_ADDR 0x08049134 //0x80480C0
+
+#define ELF_STR_SECTION_INDEX 2
+#define ELF_DATA_SECT_INDEX 3
+
 /***********elf32_header_t*******/
 
 #define ELF32_HEADER_SIZE sizeof(elf32_header_t)
@@ -185,6 +199,13 @@ TYPE(elf32_section_header_t, struct) {
 #define ELF_SEG_TYPE_HIPROC    0x7fffffff
 //END_TYPE(elf_prog_head_type_t, struct)
 
+//TYPE(elf_prog_head_flags_t, enum)
+#define ELF_PROG_FLAG_X 0x1
+#define ELF_PROG_FLAG_W 0x2
+#define ELF_PROG_FLAG_R 0x4
+#define ELF_PROG_FLAG_MASKOS 0x0ff00000 //????
+#define ELF_PROG_FLAG_MASKPROC 0xf0000000 //????
+//END_TYPE(elf_prog_head_flags_t)
 
 TYPE(elf32_program_header_t, struct) {
 
@@ -199,7 +220,7 @@ TYPE(elf32_program_header_t, struct) {
    uint32_t file_size; //number of bytes in file image of segment
    uint32_t mem_sizes; //# of bytes in image of the segment
 
-   uint32_t seg_flags;
+   uint32_t seg_flags; //elf_prog_head_flags_t
    uint32_t seg_align;
 
 
@@ -223,6 +244,11 @@ TYPE(elf_file_t, struct) {
    uint32_t num_prog_header_entries;
    uint32_t num_sect_header_entries;
 
+
+   uint32_t prog_header_offset;
+   uint32_t sect_header_offset;
+   uint32_t segments_offset;
+
    elf32_header_t* header;
    elf32_program_header_t* prog_header_entries;
    elf32_section_header_t* sect_header_entries;
@@ -240,13 +266,14 @@ elf_file_t* read_elf(char* fname);
 elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes);
 
 
-
+/* start global header functions */
 void elf_init_header(elf32_header_t* header,
                      uint16_t elf_file_type);
 
 void elf_set_header_misc(elf32_header_t* header,
                          uint32_t entry_addr,
-                         uint32_t flags);
+                         uint32_t flags,
+                         uint16_t str_section_index);
 
 void elf_set_header_prog_table(elf32_header_t* header,
                                uint32_t offset,
@@ -257,9 +284,11 @@ void elf_set_header_sect_table(elf32_header_t* header,
                                uint32_t offset,
                                uint16_t entry_size,
                                uint16_t num_entries);
+/* end global header */
 
 
-
+//void elf_init_section_header(elf32_section_header_t*)
+static inline
 void elf_init_section_header(elf32_section_header_t* sect_head,
                              uint32_t name,
                              uint32_t type,
@@ -270,7 +299,42 @@ void elf_init_section_header(elf32_section_header_t* sect_head,
                              uint32_t link,
                              uint32_t info,
                              uint32_t addr_align,
-                             uint32_t ent_size);
+                             uint32_t ent_size)
+{
+   sect_head->sect_name = name;
+   sect_head->sect_type = type;
+   sect_head->sect_flags = flags;
+   sect_head->sect_addr = addr;
+   sect_head->sect_offset = offset;
+   sect_head->sect_size = size;
+   sect_head->sect_link = link;
+   sect_head->sect_info = info;
+   sect_head->sect_addr_align = addr_align;
+   sect_head->sect_ent_size = ent_size;
+}
+
+
+//void elf_init_prog_header(elf32_program_header_t* h)
+static inline
+void elf_init_prog_header(elf32_program_header_t* h,
+                          uint32_t type,
+                          uint32_t file_offset,
+                          uint32_t virt_addr,
+                          uint32_t phys_addr,
+                          uint32_t file_size, //
+                          uint32_t mem_sizes,
+                          uint32_t flags,
+                          uint32_t align)
+{
+   h->seg_type = type;
+   h->seg_file_offset = file_offset;
+   h->seg_virt_addr = virt_addr;
+   h->seg_phys_addr = phys_addr;
+   h->file_size = file_size;
+   h->mem_sizes = mem_sizes;
+   h->seg_flags = flags;
+   h->seg_align = align;
+}
 
 
 
