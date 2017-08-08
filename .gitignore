@@ -5,3 +5,8 @@ a.out
 *.ex
 *.idb
 *.o
+
+#IDA
+*.id*
+*nam
+*til

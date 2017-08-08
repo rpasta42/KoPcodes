@@ -3,8 +3,6 @@
 
 #include "utils.h"
 
-
-
 /***********elf32_header_t*******/
 
 #define ELF32_HEADER_SIZE sizeof(elf32_header_t)
@@ -111,7 +109,6 @@ TYPE(elf32_header_t, struct) {
 /*******END*elf32_header_t*******/
 
 
-
 /********elf32_section_header_t**********/
 
 #define ELF32_SECTION_HEADER_ENTRY_SIZE sizeof(elf32_section_header_t)
@@ -172,8 +169,6 @@ TYPE(elf32_section_header_t, struct) {
 
 /*******END elf32_section_header_t*******/
 
-
-
 /********elf32_program_header_t**********/
 
 #define ELF32_PROGRAM_HEADER_ENTRY_SIZE sizeof(elf32_program_header_t)
@@ -233,6 +228,10 @@ TYPE(elf_file_t, struct) {
    elf32_program_header_t* prog_header_entries;
    elf32_section_header_t* sect_header_entries;
    byte_t* opcode;
+
+   elf32_section_header_t* str_sect_table_header;
+   uint32_t str_sect_offset;
+   char* str_sect_strings_p;
 
 } END_TYPE(elf_file_t);
 

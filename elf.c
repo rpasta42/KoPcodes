@@ -185,6 +185,23 @@ byte_t* gen_elf(int* ret_len,
 }
 
 
+
+
+
+//TODO: return NULL if no string table
+elf32_section_header_t* get_string_table_header(elf_file_t* elf_file)
+{
+   elf32_header_t* header = elf_file->header;
+
+   elf32_section_header_t *sect_head =
+      &elf_file->sect_header_entries[header->sect_head_section_name];
+
+   return sect_head;
+}
+
+
+
+
 elf_file_t* read_elf(char* fname)
 {
 
@@ -199,183 +216,26 @@ elf_file_t* read_elf(char* fname)
 
    elf_file->header = mem;
 
-   elf_file->prog_header_entries = mem + elf_file->header.prog_head_off;
+   elf_file->prog_header_entries = mem + elf_file->header->prog_head_off;
 
-   elf_file->sect_header_entries = mem + elf_file->header.sect_head_off;
+   elf_file->sect_header_entries = mem + elf_file->header->sect_head_off;
 
 
+   elf32_section_header_t* str_sect_header = get_string_table_header(elf_file);
+   if (str_sect_header) {
+      elf_file->str_sect_table_header = str_sect_header;
+
+      elf_file->str_sect_offset = str_sect_header->sect_offset;
+      elf_file->str_sect_strings_p = elf_file->str_sect_offset + mem;
+   }
+   else {
+      elf_file->str_sect_table_header = NULL;
+
+      elf_file->str_sect_offset = NULL;
+      elf_file->str_sect_strings_p =  NULL;
+   }
 
    return elf_file;
 }
-
-
-void print_elf_prog_table(elf_file_t* elf_file) {
-
-   elf32_program_header_t* prog_header = elf_file->prog_header_entries;
-
-   uint32_t prog_entry_num = elf_file->header->prog_head_num;
-}
-
-void print_elf_sect_table(elf_file_t* elf_file) {
-   elf32_section_header_t* sect_header = elf_file->sect_header_entries;
-
-   uint32_t prog_entry_num = elf_file->header->sect_head_num;
-
-}
-
-
-void elf_print_header(elf32_header_t* header) {
-   bool is_elf = header->ident.ident_bytes[0] == 0x7f;
-   if (!(0 == strncmp("ELF", &header->ident.ident_bytes[1], 3)))
-      is_elf = false;
-
-   print_mem(header, 3);
-
-   if (is_elf)
-      printf("\nmagic number match");
-   else {
-      printf("\nbad magic number");
-      goto elf_header_err;
-   }
-
-   printf("\nelf class: ");
-   elf32_ident_t elf_ident = header->ident.ident_struct;
-   switch (elf_ident.elf_class) {
-      case ELF_CLASS_NONE:
-         printf("ELF_CLASS_NONE (invalid)");
-         goto elf_header_err;
-         break;
-      case ELF_CLASS_32:
-         printf("ELF_CLASS_32");
-         break;
-      case ELF_CLASS_64:
-         printf("ELF_CLASS_64");
-         break;
-   }
-
-   printf("\nelf data representation: ");
-   switch (elf_ident.elf_data) {
-      case ELF_DATA_NONE:
-         printf("ELF_DATA_NONE (invalid)");
-         goto elf_header_err;
-         break;
-      case ELF_CLASS_32:
-         printf("ELF_DATA2_LSB");
-         break;
-      case ELF_CLASS_64:
-         printf("ELF_DATA2_MSB");
-         break;
-   }
-
-   printf("\nelf version: %i", elf_ident.elf_version);
-   if (elf_ident.elf_version == 0) {
-      printf("invalid version");
-      goto elf_header_err;
-   }
-
-   printf("\nelf num ident: %i", elf_ident.elf_num_ident);
-
-
-   printf("\nfile type: ");
-   switch (header->file_type) {
-      case ELF_TYPE_NONE:
-         printf("ELF_TYPE_NONE");
-         break;
-      case ELF_TYPE_REL:
-         printf("ELF_TYPE_REL (relocatable executable)");
-         break;
-      case ELF_TYPE_EXEC:
-         printf("ELF_TYPE_EXEC");
-         break;
-      case ELF_TYPE_DYN:
-         printf("ELF_TYPE_DIN");
-         break;
-      case ELF_TYPE_CORE:
-         printf("ELF_TYPE_CORE");
-         break;
-      case ELF_TYPE_LOPROC:
-         printf("ELF_TYPE_LOPROC");
-         break;
-      case ELF_TYPE_HIPROC:
-         printf("ELF_TYPE_HIPROC");
-         break;
-      default:
-         printf("unknown (%i)", header->file_type);
-         break;
-   }
-
-
-   printf("\nmachine type: ");
-   switch (header->machine_type) {
-      case ELF_MACHINE_NONE:
-         printf("ELF_MACHINE_NONE");
-         break;
-      case ELF_MACHINE_M32:
-         printf("ELF_MACHINE_M32");
-         break;
-      case ELF_MACHINE_SPARC:
-         printf("ELF_MACHINE_SPARC");
-         break;
-      case ELF_MACHINE_386:
-         printf("ELF_MACHINE_386");
-         break;
-      case ELF_MACHINE_68K:
-         printf("ELF_MACHINE_68K");
-         break;
-      case ELF_MACHINE_88K:
-         printf("ELF_MACHINE_88K");
-         break;
-      case ELF_MACHINE_UNKNOWN:
-         printf("ELF_MACHINE_UNKNOWN");
-         break;
-      case ELF_MACHINE_860:
-         printf("ELF_MACHINE_860");
-         break;
-      case ELF_MACHINE_MIPS:
-         printf("ELF_MACHINE_MIPS");
-         break;
-      case ELF_MACHINE_x86_64:
-         printf("ELF_MACHINE_X86_64");
-         break;
-
-      default:
-         printf("unknown (%i)", header->machine_type);
-         break;
-   }
-
-   printf("\nversion: %i", header->version);
-
-
-   printf("\nentry_addr (bytes):");
-   print_mem(&header->entry_addr, 4);
-   printf("\nentry_addr (hex): 0x%04X", header->entry_addr);
-   printf("\nentry_addr decimal: %i", header->entry_addr);
-
-
-   printf("\nprog_head_off: %i", header->prog_head_off);
-   printf("\nprog_head_num: %i", header->prog_head_num);
-   printf("\nprog_head_size: %i", header->prog_head_size);
-
-
-   printf("\nsect_head_off: %i", header->sect_head_off);
-   printf("\nsect_head_num: %i", header->sect_head_num);
-   printf("\nsect_head_size: %i", header->sect_head_size);
-
-   printf("\nsect_head_section_name: %i", header->sect_head_section_name);
-
-   printf("\nflags: %i", header->flags);
-   printf("\nheader_size: %i", header->header_size);
-
-   //switch (header->file_type)
-   printf("\n");
-
-   return;
-
-   elf_header_err:
-   printf("\nerror\n");
-
-}
-
-
 
 
