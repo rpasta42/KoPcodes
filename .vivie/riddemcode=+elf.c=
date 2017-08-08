@@ -2,7 +2,7 @@ let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 argglobal
 setlocal keymap=
 setlocal noarabic
-setlocal autoindent
+setlocal noautoindent
 setlocal backupcopy=
 setlocal nobinary
 setlocal nobreakindent
@@ -31,7 +31,7 @@ setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
-setlocal expandtab
+setlocal noexpandtab
 if &filetype != 'c'
 setlocal filetype=c
 endif
@@ -98,7 +98,7 @@ endif
 setlocal tabstop=6
 setlocal tagcase=
 setlocal tags=
-setlocal textwidth=90
+setlocal textwidth=0
 setlocal thesaurus=
 setlocal noundofile
 setlocal undolevels=-123456
@@ -109,27 +109,34 @@ setlocal wrapmargin=0
 silent! normal! zE
 5,19fold
 25,38fold
-40,46fold
-40,46fold
-49,57fold
-60,68fold
-23,71fold
-75,97fold
-102,196fold
-204,211fold
-217,252fold
+40,48fold
+40,48fold
+51,59fold
+62,70fold
+23,73fold
+82,90fold
+82,90fold
+93,124fold
+129,205fold
+210,248fold
+256,263fold
+269,304fold
 23
 normal! zo
 40
 normal! zo
-102
+23
+normal! zc
+82
 normal! zo
-let s:l = 121 - ((0 * winheight(0) + 32) / 65)
+210
+normal! zo
+let s:l = 222 - ((141 * winheight(0) + 23) / 47)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-121
-normal! 024|
+222
+normal! 027|
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost
 " vim: set ft=vim :

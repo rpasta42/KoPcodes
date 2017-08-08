@@ -2,7 +2,7 @@ let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 argglobal
 setlocal keymap=
 setlocal noarabic
-setlocal autoindent
+setlocal noautoindent
 setlocal backupcopy=
 setlocal nobinary
 setlocal nobreakindent
@@ -31,7 +31,7 @@ setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
-setlocal expandtab
+setlocal noexpandtab
 if &filetype != 'cpp'
 setlocal filetype=cpp
 endif
@@ -98,7 +98,7 @@ endif
 setlocal tabstop=6
 setlocal tagcase=
 setlocal tags=
-setlocal textwidth=90
+setlocal textwidth=0
 setlocal thesaurus=
 setlocal noundofile
 setlocal undolevels=-123456
@@ -107,51 +107,46 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-10,13fold
-15,23fold
-25,36fold
-40,44fold
-47,51fold
-57,68fold
-38,70fold
-73,106fold
-6,109fold
-116,124fold
-126,143fold
-146,151fold
-153,168fold
-112,170fold
-176,186fold
-189,206fold
-189,206fold
-172,208fold
-211,214fold
-219,236fold
-6
+24,27fold
+29,37fold
+39,50fold
+54,58fold
+61,65fold
+71,82fold
+52,84fold
+87,120fold
+20,123fold
+130,138fold
+140,157fold
+160,165fold
+167,182fold
+126,184fold
+190,200fold
+202,208fold
+210,227fold
+186,229fold
+232,235fold
+240,262fold
+269,287fold
+290,314fold
+317,337fold
+20
 normal! zo
-38
+126
 normal! zo
-38
+126
 normal! zc
-6
-normal! zc
-112
+186
 normal! zo
-153
+210
 normal! zo
-172
+317
 normal! zo
-189
-normal! zo
-172
-normal! zc
-219
-normal! zo
-let s:l = 277 - ((27 * winheight(0) + 16) / 32)
+let s:l = 222 - ((213 * winheight(0) + 32) / 65)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-277
+222
 normal! 0
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost

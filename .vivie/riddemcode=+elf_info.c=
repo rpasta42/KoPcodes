@@ -2,7 +2,7 @@ let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 argglobal
 setlocal keymap=
 setlocal noarabic
-setlocal autoindent
+setlocal noautoindent
 setlocal backupcopy=
 setlocal nobinary
 setlocal nobreakindent
@@ -31,7 +31,7 @@ setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
-setlocal expandtab
+setlocal noexpandtab
 if &filetype != 'c'
 setlocal filetype=c
 endif
@@ -98,7 +98,7 @@ endif
 setlocal tabstop=6
 setlocal tagcase=
 setlocal tags=
-setlocal textwidth=90
+setlocal textwidth=0
 setlocal thesaurus=
 setlocal noundofile
 setlocal undolevels=-123456
