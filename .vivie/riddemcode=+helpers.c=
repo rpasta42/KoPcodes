@@ -108,7 +108,7 @@ setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
 13,52fold
-let s:l = 5 - ((4 * winheight(0) + 16) / 33)
+let s:l = 5 - ((4 * winheight(0) + 16) / 32)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt

@@ -112,15 +112,20 @@ silent! normal! zE
 50,94fold
 103,142fold
 147,188fold
-191,227fold
-230,251fold
-253,262fold
-let s:l = 11 - ((10 * winheight(0) + 10) / 21)
+191,228fold
+230,266fold
+269,288fold
+290,299fold
+23
+normal! zo
+34
+normal! zo
+let s:l = 30 - ((13 * winheight(0) + 16) / 32)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-11
-normal! 0
+30
+normal! 021|
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost
 " vim: set ft=vim :
