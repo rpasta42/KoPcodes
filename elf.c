@@ -1,7 +1,6 @@
 #include "elf.h"
 
 
-
 void elf_init_ident(elf32_ident_t* ident) {
    char* elf_str = "ELF";
 
@@ -17,8 +16,6 @@ void elf_init_ident(elf32_ident_t* ident) {
    ident->elf_num_ident = 16;
 
 }
-
-
 
 /***********elf32_header_t*******/
 
@@ -74,7 +71,6 @@ void elf_set_header_sect_table(elf32_header_t* header,
 
 
 
-
 #define STR_INDEX_TEXT 47
 #define STR_INDEX_SHSTRLAB 16
 #define STR_INDEX_DATA (STR_INDEX_TEXT+5)
@@ -89,10 +85,10 @@ byte_t* get_string_table(int* string_table_len)
    return ret;
 }
 
-void elf_init_prog_headers(elf_file_t* f)
+void elf_init_prog_headers(elf_file_t* f, int text_size) //called by init_sect_prog_tables
 {
 
-   uint32_t seg_1_mem_file_size = 0x00131;
+   uint32_t seg_1_mem_file_size = text_size; //seg1_mem_file_size, //0x00131;
    uint32_t seg_2_mem_file_size = 0xd;
    uint32_t seg2_offset = ELF_DATA_OFF;
 
@@ -100,8 +96,8 @@ void elf_init_prog_headers(elf_file_t* f)
    elf_init_prog_header(&f->prog_header_entries[0],
                         ELF_SEG_TYPE_LOAD, //type
                         0, //offset
-                        ELF_LOAD_1_ADDR, //virt address
-                        ELF_LOAD_1_ADDR, //physical address
+                        ELF_INIT_ADDR, //virt address
+                        ELF_INIT_ADDR, //physical address
                         seg_1_mem_file_size, //file_size
                         seg_1_mem_file_size, //mem_sizes
                         ELF_PROG_FLAG_R | ELF_PROG_FLAG_X,
@@ -109,6 +105,7 @@ void elf_init_prog_headers(elf_file_t* f)
 
    //figure out data segment offset
 
+/*
    //data segment
    elf_init_prog_header(&f->prog_header_entries[1],
                         ELF_SEG_TYPE_LOAD, //type
@@ -119,7 +116,7 @@ void elf_init_prog_headers(elf_file_t* f)
                         seg_2_mem_file_size, //mem_size
                         ELF_PROG_FLAG_R | ELF_PROG_FLAG_W,
                         0x4);
-
+*/
 
 }
 
@@ -170,7 +167,7 @@ void init_sect_prog_tables(elf_file_t* f,
    elf_init_section_header(&f->sect_header_entries[1],
                            STR_INDEX_TEXT, ELF_SECT_TYPE_PROGBITS,
                            ELF_SECT_FLAG_ALLOC | ELF_SECT_FLAG_EXECINSTR,
-                           ELF_ENTRY_ADDR, //address
+                           ELF_ENTRY_ADDR(f->num_prog_header_entries), //address
                            f->segments_offset, text_size, //file offset, size
                            ELF_SECT_IN_UNDEF, //link
                            0, 16, 0); //info, addr_align, ent_size
@@ -194,7 +191,7 @@ void init_sect_prog_tables(elf_file_t* f,
                            0,  //link
                            0, 4, 0); //info, addr_align, ent_size
 
-   elf_init_prog_headers(f);
+   elf_init_prog_headers(f, text_size + f->segments_offset);
 
    memcpy(f->mem + f->segments_offset, text_data, text_size);
    memcpy(f->mem + f->segments_offset + text_size,
@@ -209,7 +206,7 @@ void init_sect_prog_tables(elf_file_t* f,
 elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
 {
    elf_file_t* f = malloc(sizeof(elf_file_t));
-   f->num_prog_header_entries = 2;
+   f->num_prog_header_entries = 1; //2;
    f->num_sect_header_entries = 4;
 
    init_sect_prog_tables(f, opcodes, len_opcodes);
@@ -235,7 +232,7 @@ elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
 
 
 
-   elf_set_header_misc(f->header, ELF_ENTRY_ADDR, 0,
+   elf_set_header_misc(f->header, ELF_ENTRY_ADDR(f->num_prog_header_entries), 0,
                        ELF_STR_SECTION_INDEX);
 
    //elf_set_header_misc

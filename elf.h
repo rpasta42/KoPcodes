@@ -3,6 +3,16 @@
 
 #include "utils.h"
 
+#define ELF_INIT_ADDR 0x08048000
+
+/* n = num_prog_header_entires */
+#define ELF_ENTRY_ADDR(n) \
+   ((n * sizeof(elf32_program_header_t)) \
+    + ELF32_HEADER_SIZE \
+    + ELF_INIT_ADDR)
+
+//BAD/old addresses
+
 #define ELF_ADDR_TEXT 0x080480c0
 #define ELF_OFF_TEXT 0xc0
 
@@ -10,7 +20,9 @@
 #define ELF_DATA_OFF 0x000134
 
 #define ELF_LOAD_1_ADDR 0x8048000 //both physical and virtual
-#define ELF_ENTRY_ADDR 0x80480C0
+
+//#define ELF_ENTRY_ADDR 0x80480C0
+
 #define ELF_SEG_2_OFFSET 0x134
 #define ELF_DATA_ADDR 0x08049134 //0x80480C0
 
@@ -227,6 +239,45 @@ TYPE(elf32_program_header_t, struct) {
 } PACKED END_TYPE(elf32_program_header_t);
 
 /*******END elf32_program_header_t*******/
+
+/********elf32_sym_table_entry_t**********/
+
+//TYPE(elf_sym_table_bind_t, enum)
+#define ELF_SYM_TABLE_BIND_LOCAL 0
+#define ELF_SYM_TABLE_BIND_GLOBAL 1
+#define ELF_SYM_TABLE_BIND_WEAK 2
+#define ELF_SYM_TABLE_BIND_LOPROC 13
+#define ELF_SYM_TABLE_BIND_HIPROC 15
+//ENDTYPE(elf_sym_table_bind_t)
+
+//TYPE(elf_sym_table_type_t, enum)
+#define ELF_SYM_TABLE_TYPE_NOTYPE  	   0
+#define ELF_SYM_TABLE_TYPE_OBJECT      1
+#define ELF_SYM_TABLE_TYPE_FUNC        2
+#define ELF_SYM_TABLE_TYPE_SECTION     3
+#define ELF_SYM_TABLE_TYPE_FILE        4
+#define ELF_SYM_TABLE_TYPE_LOPROC     13
+#define ELF_SYM_TABLE_TYPE_HIPROC     15
+//ENDTYPE(elf_sym_table_type_t)
+
+#define ELF_SYM_TABLE_GET_BIND(i) ((i) >> 4)
+#define ELF_SYM_TABLE_GET_TYPE(i) ((i) & 0xF)
+#define ELF_SYM_TABLE_MAKE_INFO(bind, type) (((bind) << 4) + ((t) & 0xF))
+
+
+TYPE(elf32_sym_table_entry_t, struct) {
+   uint32_t name; //.strtab section stirng index
+   uint32_t	value; //can be address, absolute value, etc
+   uint32_t	size;
+   byte_t info;
+   byte_t other;
+   byte_t sect_index;
+} PACKED END_TYPE(elf32_sym_table_entry_t);
+
+/*******END elf32_sym_table_entry_t*******/
+
+
+
 
 
 /*TYPE(elf_conf_t, struct) {

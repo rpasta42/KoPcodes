@@ -7,9 +7,20 @@ OBJS=$(SRCS:.c=.o)
 
 default: build
 
-run: build
-	./$(OUTF) readelf $(OUTF)
 
+OUT_FILE_PATH=misc/tests/kopcodes.test_elf.ex
+
+run_gen_elf: build
+	./$(OUTF) asm misc/tests/test_elf.asm $(OUT_FILE_PATH);
+
+
+readelf2: build #print header for example executable
+	./$(OUTF) readelf misc/tests/test_elf.ex #$(OUTF)
+readelf1: run_gen_elf
+	./$(OUTF) readelf $(OUT_FILE_PATH)
+
+run: run_gen_elf
+	chmod u+x ./$(OUT_FILE_PATH); ./$(OUT_FILE_PATH)
 
 test: build
 	./$(OUTF) test

@@ -80,6 +80,13 @@ elf types
 ============================
 ;opcodes.f
 
+
+#define ELF_BASE_LOAD_ADDR 0x8048000
+
+#define ELF_ENTRY_ADDR(n) ((n * sizeof(elf32_program_header_t)
+                           + ELF32_HEADER_SIZE
+                           + ELF_BASE_LOAD_ADDR)
+
 0x94 	first section offset
 	ELF32_HEADER_SIZE + sizeof(elf32_program_header_t)*3
 
@@ -93,7 +100,24 @@ elf types
 
 
 
+first sect #text
+	first_sect_offset: ELF32_HEADER_SIZE + sizeof(elf32_program_header_t)*num_prog_ehader_entries
+	first_sect_addr: ELF_BASE_LOAD_ADDR + first_sect_offset
 
+second sect #data
+	snd_sect_offset: first_sect_offset + first_sect_addr
 
+program header:
+first: LOAD
+   FileSize/MemSize = snd_sect_offset + snd_sect_size
+snd: LOAD (for data)
+   FIleSize/MemSize = if 0, then align
+
+needed sections
+.data = initialized program data
+.text = executable
+.shstrtab = string table with section names
+.strtab = string table with symbol table entries
+.symtab = symbol table
 
 
