@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "tests.h"
 #include "main.h"
+#include "elf.h"
 
 void split_at_test(string_t str, string_t splitter) {
    char** parts = split_at(str, splitter);
@@ -86,6 +87,17 @@ void lex_test(char* str) {
 
 
 void run_tests() {
+
+   //printf("%i", is_alpha('a'));
+   int elf_prog_header_size = sizeof(elf32_program_header_t);
+   int total_headers = ELF32_HEADER_SIZE + elf_prog_header_size*3;
+
+   printf("elf header size: %i\nprog header size:%i\ntogether:%i\nhex:%04X\n\n",
+          ELF32_HEADER_SIZE,
+          elf_prog_header_size,
+          total_headers,
+          total_headers);
+
    //constants 4 and 5 have length of 2 for some reason
    //lex_test("mov eax, 4\nmov ebx, 5\npush edx");
    //lex_test("mov ;test world\nin");

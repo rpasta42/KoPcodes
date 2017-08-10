@@ -303,4 +303,8 @@ elf_file_t* read_elf(char* fname)
    return elf_file;
 }
 
+void elf_file_free(elf_file_t* f) {
+
+}
+
 
