@@ -54,6 +54,7 @@ TYPE(instr_arg_type_t, enum) {
 TYPE(instr_name_t, enum) {
    //OpNone,
    OpSection,
+   OpLabel,
    OpAdd,
    OpAnd,
    OpCall,
@@ -85,6 +86,8 @@ TYPE(instr_name_t, enum) {
 TYPE(instr_arg_value_t, union) {
    reg_name_t reg_index; //-1 not a reg
    int const_num;
+   uint32_t const_num_u;
+   uint8_t const_num_b;
    char* sym_str;
 } END_TYPE(instr_arg_value_t);
 
@@ -92,7 +95,7 @@ TYPE(instr_arg_value_t, union) {
 TYPE(instr_t, struct) {
    instr_name_t name; //from instruction enum
    //instr_name_sym
-   char* sym; //some custom crap
+   char* sym; //some custom crap. //TODO: NEED TO FREE IF NOT NULL
    instr_arg_type_t arg1_t;
    instr_arg_type_t arg2_t;
    instr_arg_value_t arg1_v;

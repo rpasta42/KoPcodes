@@ -119,6 +119,7 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 char* instr_names_str[] = {
    //"none",
    "section",
+   "label",
    "add",
    "and",
    "call",
@@ -221,6 +222,14 @@ bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_
 }
 
 
+int get_str_index(char* test, char** table, int num_table) {
+   int i;
+   for (i = 0; i < num_table; i++) {
+      if (strncmp(test, table[i], strlen(table[i])) == 0)
+         return i;
+   }
+   return -1;
+}
 
 instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
 
@@ -242,22 +251,44 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
          lexeme_t* lexeme = &lexemes[j];
          char* str_lex = lexeme->str;
 
+         if (str_lex[strlen(str_lex)-1] == ':') {
+            int k;
+            k = get_str_index("label", instr_names_str, NUM_INSTRUCTS);
+            if (k == -1) {
+               printf("\n\n!!!!ERROR\n\n");
+            }
+            instructs[i].name = k;
+
+            int lex_len = strlen(str_lex);
+            char* label_name = malloc(lex_len);
+            strncpy(label_name, str_lex, lex_len-1);
+            label_name[lex_len-1] = '\0';
+            instructs[i].sym = label_name;
+            break;
+         }
+
          //printf("\nkk:%s", str_lex);
 
          instructs[i].sym = NULL;
 
          if (!have_instr_name) {
 
-            for (k = 0; k < NUM_INSTRUCTS; k++) {
-               char* test_name = instr_names_str[k];
+            //for (k = 0; k < NUM_INSTRUCTS; k++) {
+               /*char* test_name = instr_names_str[k];
                int test_name_len = strlen(test_name);
                int cmp_res = strncmp(str_lex, test_name, test_name_len);
                if (cmp_res == 0) {
                   instructs[i].name = k;
                   have_instr_name = true;
                   break;
+               }*/
+               k = get_str_index(str_lex, instr_names_str, NUM_INSTRUCTS);
+               if (k != -1) {
+                  instructs[i].name = k;
+                  have_instr_name = true;
                }
-            }
+
+            //}
 
             //instructs[i].name = OpNone;
 

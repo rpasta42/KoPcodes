@@ -1,6 +1,9 @@
 #ifndef X86GEN_H_INCLUDE
 #define X86GEN_H_INCLUDE
 
+
+#define OP_INT_C 0xCD
+
 #define OP_MOV_R32_R32 0xC089
 #define OP_MOV_R32_C 0xB8
 

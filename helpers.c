@@ -47,7 +47,7 @@ void print_side_by_side(instr_t* instruct, char* mem, int mem_index, int op_len)
 
    printf("\t\t");
    //printf("\nhex:0x%08x\n", *((uint32_t*)opcode));
-   print_mem(mem, op_len);
+   print_mem(mem+mem_index, op_len);
    printf("\n");
 }
 

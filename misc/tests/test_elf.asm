@@ -1,3 +1,6 @@
+mov eax, 1
+mov ebx, 0
+int 0x80
    mov eax, 0
    mov eax, 0x01
    mov eax, 0x2
@@ -28,3 +31,12 @@ push edx
 ;mov ebx, 0x7
 ;inc eax
 ;int 0x80
+ha:
+jmp ha
+
+int 0x80
+int 0x81
+int 0x90
+
+
+

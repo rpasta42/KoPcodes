@@ -3,6 +3,8 @@
 
 #include "utils.h"
 
+//#define DEBUG_BIN_ASM "kopcodes.bin"
+
 #define ELF_INIT_ADDR 0x08048000
 
 /* n = num_prog_header_entires */

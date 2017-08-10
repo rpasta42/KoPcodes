@@ -38,6 +38,30 @@ byte_t op_gen_reg(instr_arg_value_t* arg_v) {
 }
 
 
+void op_gen_int(instr_t* instruct, byte_t* mem, int* mem_index)
+{
+   instr_arg_type_t arg1_t = instruct->arg1_t;
+   instr_arg_type_t arg2_t = instruct->arg2_t;
+
+   instr_arg_value_t arg1_v = instruct->arg1_v;
+
+   if (arg2_t != ArgNone || arg1_t != ArgConst) {
+      //ERROR
+      printf("\n!!!!error\n");
+      return;
+   }
+
+   int op_len = 2;
+   byte_t* opcode = mem + (*mem_index);
+
+   opcode[0] = OP_INT_C;
+   opcode[1] = (uint8_t)arg1_v.const_num_b;
+
+   print_side_by_side(instruct, mem, *mem_index, op_len);
+
+   *mem_index += op_len;
+
+}
 
 //mem_index contains where we should place next instruction
 //op_gen_* functions increment it after adding
@@ -129,6 +153,15 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
 
          break;
 
+         case OpInt:
+            op_gen_int(instruct, op, &op_i);
+
+         break;
+
+         case OpLabel:
+
+         break;
+
          default:
 
          break;
@@ -161,7 +194,10 @@ byte_t* run_asm(char* str, int* ret_len)
    int opcode_len = 0;
    char* opcode = gen_op(instructs, num_lines, &opcode_len);
 
-   write_file("kopcode.test", opcode, opcode_len);
+   //write_file("kopcode.test", opcode, opcode_len);
+#ifdef DEBUG_BIN_ASM
+   write_file(DEBUG_BIN_ASM, opcode, opcode_len);
+#endif
 
    *ret_len = opcode_len;
    return opcode;

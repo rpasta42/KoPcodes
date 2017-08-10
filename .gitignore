@@ -2,6 +2,7 @@ a.out
 *.swp
 #todo: remove
 *.ex
+*.bin
 *.idb
 *.o
 

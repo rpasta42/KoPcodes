@@ -58,6 +58,9 @@ void main_readelf(char* elf_file_path, char* arg) {
 int main(int nargs, char** args)
 {
 
+   test_sexps();
+   return;
+
    if (nargs == 1)
 	goto args_format_err;
 
