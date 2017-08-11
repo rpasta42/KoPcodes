@@ -27,7 +27,7 @@ void main_asm(char* path_in, char* path_out) {
 
 
    int opcodes_len = 0;
-   char* opcodes = run_asm(str, &opcodes_len);
+   char* opcodes = assemble_str(str, &opcodes_len);
 
 
    //elf_conf_t conf;
@@ -58,8 +58,8 @@ void main_readelf(char* elf_file_path, char* arg) {
 int main(int nargs, char** args)
 {
 
-   test_sexps();
-   return;
+   //test_sexps();
+   //return;
 
    if (nargs == 1)
 	goto args_format_err;

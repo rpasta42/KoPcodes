@@ -299,4 +299,11 @@ void print_mem(char* bytes, int num_bytes) {
 }
 
 
+void to_lower_str(char* p) {
+   for ( ; *p; ++p) *p = tolower(*p);
+}
+
+
+
+
 

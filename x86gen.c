@@ -38,7 +38,8 @@ byte_t op_gen_reg(instr_arg_value_t* arg_v) {
 }
 
 
-void op_gen_int(instr_t* instruct, byte_t* mem, int* mem_index)
+void op_gen_int(instr_t* instruct, byte_t* mem, int* mem_index,
+                sym_table_entry_t* sym_table)
 {
    instr_arg_type_t arg1_t = instruct->arg1_t;
    instr_arg_type_t arg2_t = instruct->arg2_t;
@@ -65,7 +66,8 @@ void op_gen_int(instr_t* instruct, byte_t* mem, int* mem_index)
 
 //mem_index contains where we should place next instruction
 //op_gen_* functions increment it after adding
-void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index)
+void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index,
+                sym_table_entry_t* sym_table)
 {
 
    instr_arg_type_t arg1_t = instruct->arg1_t;
@@ -127,9 +129,40 @@ void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index)
    *mem_index += op_len;
 }
 
+
+void op_gen_label(instr_t* instruct, byte_t* mem, int* mem_index,
+                  sym_table_t* sym_table)
+{
+   sym_table_t* sm = sym_-table;
+
+   char* label_name = instruct->sym;
+   LIST_ADD_ITEM_SPACE(sm->entries, sym_table_entry_t,
+                       sm->num_entries, sm->len_entries);
+
+   sym_table_entry_t* new_entry = &sm->entries[sm->num_entries++];
+   new_entry->name = instruct->sym;
+   new_entry->val = mem_index;
+   new_entry->flags = ELF_SYM_TAB_FLAG_ADD_TEXT_ENTRY_ADDR;
+   new_entry->expr_val = NULL;
+
+
+   LIST_NEW(new_entry->opcode_indices, uint32_t,
+            new_entry->num_opcode_indices,
+            new_entry->len_opcode_indices);
+
+}
+
+
+void sym_table_init(sym_table_t* sym_table)
+{
+   LIST_NEW(sym_table->entries, sym_table_entry_t,
+            sym_table->num_entries, sym_table->len_entries);
+}
+
 //converts instr_t to x86 opcode
 //ret_size is set to size of return pointer
-char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
+char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
+             sym_table_t* sym_table)
 {
    *ret_size = 5*num_instructs;
    char* op = malloc(*ret_size);
@@ -140,6 +173,8 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
 
    int i;
 
+   //init_sym_table(sym_table);
+
    for (i = 0; i < num_instructs; i++) {
       instr_t* instruct = &instructs[i];
 
@@ -149,18 +184,19 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
       }
       switch (instruct->name) {
          case OpMov:
-            op_gen_mov(instruct, op, &op_i);
+            op_gen_mov(instruct, op, &op_i, sym_table);
 
          break;
 
          case OpInt:
-            op_gen_int(instruct, op, &op_i);
+            op_gen_int(instruct, op, &op_i, sym_table);
 
          break;
 
          case OpLabel:
-
+            op_gen_label(instruct, op, *op_i, sym_table);
          break;
+
 
          default:
 
@@ -176,7 +212,7 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size)
 
 
 //generates opcode, writes them to kopcode.test and returns the bytes
-byte_t* run_asm(char* str, int* ret_len)
+byte_t* assemble_str(char* str, int* ret_len)
 {
    int num_lines;
    lexed_line_t* lexed = lex(str, &num_lines);
@@ -191,8 +227,12 @@ byte_t* run_asm(char* str, int* ret_len)
       print_instructs(instructs, num_lines);
    }
 
+   sym_table_t sym_table;
+   sym_table_init(&sym_table);
+
    int opcode_len = 0;
-   char* opcode = gen_op(instructs, num_lines, &opcode_len);
+   char* opcode = gen_op(instructs, num_lines, &opcode_len,
+                         &sym_table);
 
    //write_file("kopcode.test", opcode, opcode_len);
 #ifdef DEBUG_BIN_ASM

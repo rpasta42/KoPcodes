@@ -2,6 +2,9 @@
 #include "main.h"
 #include "types.h"
 
+
+
+
 void init_lexeme(lexeme_t* lex, char* line, int start, int len) {
 
    lex->str = malloc(len+1);
@@ -10,9 +13,6 @@ void init_lexeme(lexeme_t* lex, char* line, int start, int len) {
    lex->len = len;
 }
 
-void to_lower_str(char* p) {
-   for ( ; *p; ++p) *p = tolower(*p);
-}
 
 lexed_line_t* lex(char* file, int *num_lines1) {
 
@@ -114,51 +114,6 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
    return ret;
 }
-
-
-char* instr_names_str[] = {
-   //"none",
-   "section",
-   "label",
-   "add",
-   "and",
-   "call",
-   "cmp",
-   "dec",
-   "div",
-   "inc",
-   "int",
-   "ja",
-   "jae",
-   "jb",
-   "jbe",
-   "jcxz",
-   "je",
-   "jg",
-   "jge",
-   "jl",
-   "jle",
-   "jmp",
-   "loop",
-   "mov",
-   "mul",
-   "or",
-   "pop",
-   "push",
-   "sub"
-};
-
-char* reg_names_str[] = {
-   "eax",
-   "ebx",
-   "ecx",
-   "edx",
-};
-
-
-
-#define NUM_INSTRUCTS OpSub + 1
-#define NUM_REGS RegEdx + 1
 
 
 bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {

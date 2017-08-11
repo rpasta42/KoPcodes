@@ -30,8 +30,46 @@ TYPE(lexed_line_t, struct) {
 
 /*******END*LEXER*******/
 
-
 /********PARSER*******/
+
+static char* instr_names_str[] = {
+   //"none",
+   "section",
+   "label",
+   "add",
+   "and",
+   "call",
+   "cmp",
+   "dec",
+   "div",
+   "inc",
+   "int",
+   "ja",
+   "jae",
+   "jb",
+   "jbe",
+   "jcxz",
+   "je",
+   "jg",
+   "jge",
+   "jl",
+   "jle",
+   "jmp",
+   "loop",
+   "mov",
+   "mul",
+   "or",
+   "pop",
+   "push",
+   "sub"
+};
+
+static char* reg_names_str[] = {
+   "eax",
+   "ebx",
+   "ecx",
+   "edx",
+};
 
 TYPE(reg_name_t, enum) {
    RegEax,
@@ -102,28 +140,51 @@ TYPE(instr_t, struct) {
    instr_arg_value_t arg2_v;
 } END_TYPE(instr_t);
 
-
-
-/*
-enum instr_args {
-   InstrNone,
-   InstrConst, //0x80 43
-   InstrAddr,
-   InstrReg,
-   InstrRegConst2, //mov eax, 0x04
-   Instr
-
-}
-
-enum opcodes {
-   mov_r16_const
-};
-*/
+#define NUM_INSTRUCTS OpSub + 1
+#define NUM_REGS RegEdx + 1
 
 
 /******END PARSER*****/
 
+/********SYM TABLE*******/
 
+
+/* Symbol Table
+Flags
+   FLAG_ADD_ADDR = add current address
+   FLAG_ADD_TEXT_ENTRY_ADDR = add virtual address where text entry begins to val
+*/
+
+//TYPE(elf_sym_tab_flags_t)
+#define ELF_SYM_TAB_FLAG_ADD_ADDR (1 << 8)
+#define ELF_SYM_TAB_FLAG_SUB_ADDR (1 << 7)
+#define ELF_SYM_TAB_FLAG_ADD_TEXT_ENTRY_ADDR (1 << 6)
+#define ELF_SYM_TAB_FLAG_SUB_TEXT_ENTRY_ADDR (1 << 5)
+#define ELF_SYM_TAB_FLAG_EXPR (1 << 4)
+//END_TYPE(elf_sym_tab_flags_t);
+
+TYPE(sym_table_entry_t, struct) {
+   char* name;
+   //size_t int_name;
+   void* expr_val; //if symbol value is complex expression (ELF_SYM_TAB_FLAG_EXPR)
+   uint32_t val;
+   int flags; //elf_sym_tab_Flags_t
+
+   //this is needed for dynamic stuff
+   uint32_t* opcode_indices; //index in opcodes where the symbol appears
+   uint16_t num_opcode_indices;
+   uint16_T len_opcode_indices;
+} END_TYPE(sym_table_entry_t);
+
+
+TYPE(sym_table_t, struct) {
+   sym_table_entry_t* entries;
+   size_t num_entries;
+   size_t len_entries;
+} END_TYPE(sym_table_t);
+
+
+/*****END SYM TABLE******/
 
 
 
