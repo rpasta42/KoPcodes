@@ -17,9 +17,20 @@
 
 
 
-byte_t* assemble_str(char* str, int* ret_len);
+byte_t* assemble_str(char* str, int* ret_len,
+                     sym_table_t* sym_table);
 char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
              sym_table_t* sym_table);
+
+
+int sym_table_add_ref(sym_table_t* st,
+                      char* name,
+                      int val,
+                      int flags,
+                      sym_complex_t* expr_val
+                      byte_t* ref_loc, //we modify bytes in ref_loc
+                      int ref_loc_len);
+
 
 
 #endif //X86GEN_H_INCLUDE

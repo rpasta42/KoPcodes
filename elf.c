@@ -203,7 +203,8 @@ void init_sect_prog_tables(elf_file_t* f,
 
 
 
-elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
+elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes,
+			  sym_table_t* sym_table)
 {
    elf_file_t* f = malloc(sizeof(elf_file_t));
    f->num_prog_header_entries = 1; //2;
@@ -240,6 +241,8 @@ elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes)
    //memcpy(elf_mem, &header, ELF32_HEADER_SIZE);
    //memcpy(mem + ELF32_HEADER_SIZE, opcodes, len_opcodes);
 
+   f->sym_table = sym_table;
+   elf_relocate_sym_table(f);
 
    return f;
 }
@@ -302,6 +305,23 @@ elf_file_t* read_elf(char* fname)
 
 void elf_file_free(elf_file_t* f) {
 
+}
+
+//time to fill out missing addresses (called in gen_elf())
+void elf_relocate_sym_table(elf_file_t* f)
+{
+   sym_table_t* st = f->sym_table;
+   //sym_table_entry_t* entries = st->entries;
+   sym_table_reference_t* refs = st->refs;
+
+   uint32_t opcode_base_addr = f->segments_offset +
+					 ELF_INIT_ADDR;
+
+   int i;
+   for (i = 0; i < st->num_refs; i++) {
+	entry = st->entries[i];
+
+   }
 }
 
 

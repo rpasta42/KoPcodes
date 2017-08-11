@@ -26,8 +26,12 @@ void main_asm(char* path_in, char* path_out) {
    printf("\n%s read successfully!\n", path_in);
 
 
+   sym_table_t sym_table;
+   sym_table_init(&sym_table);
+
    int opcodes_len = 0;
-   char* opcodes = assemble_str(str, &opcodes_len);
+   char* opcodes = assemble_str(str, &opcodes_len,
+					  &sym_table);
 
 
    //elf_conf_t conf;
@@ -35,7 +39,8 @@ void main_asm(char* path_in, char* path_out) {
    //elf_mem = gen_elf(/*&elf_conf,*/ &elf_mem_len,
    //                          opcodes, opcodes_len);
 
-   elf_file_t* elf = gen_elf(opcodes, opcodes_len);
+   elf_file_t* elf = gen_elf(opcodes, opcodes_len,
+				     &sym_table);
 
    char* path_out2 = "kopcodes.elf.test.ex";
    if (path_out == NULL)

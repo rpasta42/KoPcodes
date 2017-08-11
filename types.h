@@ -34,6 +34,10 @@ TYPE(lexed_line_t, struct) {
 
 static char* instr_names_str[] = {
    //"none",
+   "dd",
+   "db",
+   "equ",
+   "resb",
    "section",
    "label",
    "add",
@@ -61,7 +65,8 @@ static char* instr_names_str[] = {
    "or",
    "pop",
    "push",
-   "sub"
+   "sub",
+   "nop"
 };
 
 static char* reg_names_str[] = {
@@ -69,13 +74,23 @@ static char* reg_names_str[] = {
    "ebx",
    "ecx",
    "edx",
+   "ax", "bx", "cx", "dx",
+   "al", "ah",
+   "bl", "bh",
+   "cl", "ch",
+   "dl", "dh"
 };
 
 TYPE(reg_name_t, enum) {
    RegEax,
    RegEbx,
    RegEcx,
-   RegEdx
+   RegEdx,
+   RegAx, RegBx, RegCx, RegDx,
+   RegAl, RegAh,
+   RegBl, RegBh,
+   RegCl, RegCh,
+   RegDl, RegDh
 } END_TYPE(reg_name_t);
 
 //typedef enum instr_arg_types {} instr_arg_types;
@@ -91,6 +106,10 @@ TYPE(instr_arg_type_t, enum) {
 
 TYPE(instr_name_t, enum) {
    //OpNone,
+   OpDd,
+   OpDb,
+   OpEqu,
+   OpResb,
    OpSection,
    OpLabel,
    OpAdd,
@@ -118,7 +137,8 @@ TYPE(instr_name_t, enum) {
    OpOr,
    OpPop,
    OpPush,
-   OpSub
+   OpSub,
+   OpNop
 } END_TYPE(instr_name_t);
 
 TYPE(instr_arg_value_t, union) {
@@ -140,8 +160,8 @@ TYPE(instr_t, struct) {
    instr_arg_value_t arg2_v;
 } END_TYPE(instr_t);
 
-#define NUM_INSTRUCTS OpSub + 1
-#define NUM_REGS RegEdx + 1
+#define NUM_INSTRUCTS OpNop + 1
+#define NUM_REGS RegDh + 1
 
 
 /******END PARSER*****/
@@ -152,40 +172,86 @@ TYPE(instr_t, struct) {
 /* Symbol Table
 Flags
    FLAG_ADD_ADDR = add current address
-   FLAG_ADD_TEXT_ENTRY_ADDR = add virtual address where text entry begins to val
+   FLAG_ADD_BIN_ADDR = add virtual address where opcodes begin to val
 */
 
-//TYPE(elf_sym_tab_flags_t)
-#define ELF_SYM_TAB_FLAG_ADD_ADDR (1 << 8)
-#define ELF_SYM_TAB_FLAG_SUB_ADDR (1 << 7)
-#define ELF_SYM_TAB_FLAG_ADD_TEXT_ENTRY_ADDR (1 << 6)
-#define ELF_SYM_TAB_FLAG_SUB_TEXT_ENTRY_ADDR (1 << 5)
-#define ELF_SYM_TAB_FLAG_EXPR (1 << 4)
-//END_TYPE(elf_sym_tab_flags_t);
+//TYPE(sym_tab_flags_t)
+#define SYM_TAB_FLAG_ADD_ADDR (1 << 8)
+#define SYM_TAB_FLAG_SUB_ADDR (1 << 7)
+#define SYM_TAB_FLAG_ADD_BIN_ADDR (1 << 6)
+#define SYM_TAB_FLAG_SUB_BIN_ADDR (1 << 5)
+#define SYM_TAB_FLAG_EXPR (1 << 4)
+#define SYM_TAB_FLAG_PURE_SYM (1 << 3) //reference; replace with symtable val
+//END_TYPE(sym_tab_flags_t);
+
+
+/* TODO: SYM TABLE SHOULD BE IN A BALANCED SORTED TREE */
+
+TYPE(sym_complex_t, struct) {
+   int is_reserve; //dd, db, equ, resp
+
+} END_TYPE(sym_complex_t, struct);
 
 TYPE(sym_table_entry_t, struct) {
    char* name;
-   //size_t int_name;
-   void* expr_val; //if symbol value is complex expression (ELF_SYM_TAB_FLAG_EXPR)
+   int int_name;
+   //not null if flag ELF_SYM_TAB_FLAG_EXPR
+   sym_complex_t* expr_val;
+   int flags; //elf_sym_tab_flags_t
    uint32_t val;
-   int flags; //elf_sym_tab_Flags_t
 
-   //this is needed for dynamic stuff
+   /*//this is needed for dynamic stuff
    uint32_t* opcode_indices; //index in opcodes where the symbol appears
    uint16_t num_opcode_indices;
-   uint16_T len_opcode_indices;
+   uint16_t len_opcode_indices;*/
 } END_TYPE(sym_table_entry_t);
 
+TYPE(sym_table_reference_t, struct) {
+   int int_name; //symbol name
+   int sym_index; //symbol index
+   int flags; //elf_sym_tab_flags_t
+   //not null if flag ELF_SYM_TAB_FLAG_EXPR
+   sym_complex_t* expr_val;
+} END_TYPE(sym_table_reference_t);
 
 TYPE(sym_table_t, struct) {
+   //ONE ARRAY STORES ALL NAMES INSTEAD OF char**
+   //all MEMCPY'd in 1. THIS WAY IS GOOD FOR ELF
+   char* sym_names;
+   int num_name_chars;
+   int len_names;
+
    sym_table_entry_t* entries;
    size_t num_entries;
    size_t len_entries;
+
+   sym_table_reference_t* refs;
+   int num_refs;
+   int len_refs;
+
 } END_TYPE(sym_table_t);
 
 
 /*****END SYM TABLE******/
 
+
+TYPE(asm_seg_info_t, struct) {
+   uint32_t offset;
+   char* name;
+} END_TYPE(asm_seg_info_t);
+
+
+TYPE(asm_op_data_t, struct) {
+   instr_t* instruct;
+   byte_t* mem;
+   int* mem_index;
+   sym_table_t* sym_table;
+
+   int num_segs;
+   int len_segs;
+   asm_seg_info_t* segs;
+
+} END_TYPE(asm_op_data_t);
 
 
 #endif //TYPES_H_INCLUDE

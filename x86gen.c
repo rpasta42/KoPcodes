@@ -96,8 +96,18 @@ void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index,
          if (arg2_t == ArgConst) {
             *(uint32_t*)(opcode+1) = arg2_v.const_num;
          }
-         else {
-            //TODO: symbol table
+         else if (arg2_t == ArgSym) {
+            int ret_stat = sym_table_add_ref(sym_table,
+                                             arg2_v.sym_str,
+                                             0,
+                                             SYM_TAB_FLAG_PURE_SYM,
+                                             NULL,
+                                             (opcode+1),
+                                             4);
+            if (ret_stat != 0) {
+               goto err;
+            }
+
          }
 
       }
@@ -127,36 +137,77 @@ void op_gen_mov(instr_t* instruct, byte_t* mem, int* mem_index,
    print_side_by_side(instruct, mem, *mem_index, op_len);
 
    *mem_index += op_len;
+
+   err:
+   printf("\n:symbol not found? (op_gen_mov)..;.\n");
+
 }
 
 
 void op_gen_label(instr_t* instruct, byte_t* mem, int* mem_index,
                   sym_table_t* sym_table)
 {
-   sym_table_t* sm = sym_-table;
+   sym_table_t* sm = sym_table;
 
    char* label_name = instruct->sym;
-   LIST_ADD_ITEM_SPACE(sm->entries, sym_table_entry_t,
+   /*LIST_ADD_ITEM_SPACE(sm->entries, sym_table_entry_t,
                        sm->num_entries, sm->len_entries);
 
-   sym_table_entry_t* new_entry = &sm->entries[sm->num_entries++];
-   new_entry->name = instruct->sym;
-   new_entry->val = mem_index;
-   new_entry->flags = ELF_SYM_TAB_FLAG_ADD_TEXT_ENTRY_ADDR;
-   new_entry->expr_val = NULL;
+   sym_table_entry_t* e = &sm->entries[sm->num_entries++];
+   e->name = instruct->sym;
+   e->val = *mem_index;
+   e->flags = ELF_SYM_TAB_FLAG_ADD_BIN_ADDR;
+   e->expr_val = NULL;
 
 
-   LIST_NEW(new_entry->opcode_indices, uint32_t,
-            new_entry->num_opcode_indices,
-            new_entry->len_opcode_indices);
+   LIST_NEW(e->opcode_indices, uint32_t,
+            e->num_opcode_indices, e->len_opcode_indices);*/
+   int ret_val =
+      sym_table_add_sym(sym_table,
+                        instruct->sym,
+                        *mem_index, //value
+                        SYM_TAB_FLAG_ADD_BIN_ADDR,
+                        NULL);
 
 }
 
-
-void sym_table_init(sym_table_t* sym_table)
+void op_gen_nop(instr_t* instruct, byte_t* mem, int* mem_index,
+                  sym_table_t* sym_table)
 {
-   LIST_NEW(sym_table->entries, sym_table_entry_t,
-            sym_table->num_entries, sym_table->len_entries);
+   byte_t* opcode = mem + (*mem_index); //char opcode[op_len];
+   opcode[0] = 0x90;
+   *mem_index += 1;
+}
+
+void op_gen_sect(asm_op_data_t* data) {
+   LIST_ADD_ITEM_SPACE(data->segs, asm_seg_info_t,
+                       data->num_segs, data->len_segs);
+
+   asm_seg_info_t* seg = &data->segs[num_segs++];
+   seg->offset = *data->mem_index;
+
+   instr_t* inst = data->instruct;
+
+   assert(inst->arg1_t == ArgSym);
+   seg->name = inst->arg1_v.sym_str;
+}
+
+
+void init_asm_op_data(asm_op_data_t* data,
+                      instr_t* instruct,
+                      byte_t* mem,
+                      int* mem_index,
+                      sym_table_t* sym_tab)
+{
+
+   data->instruct = instruct;
+   data->mem = mem;
+   data->mem_index = mem_index;
+   data->sym_table = sym_tab;
+
+   LIST_NEW(data->segs, asm_seg_info_t,
+            data->num_segs, data->len_segs);
+
 }
 
 //converts instr_t to x86 opcode
@@ -173,10 +224,17 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
 
    int i;
 
+   asm_op_data_t data;
+   init_asm_op_data(&data, NULL,
+                   op, &op_i,
+                   sym_table);
+
    //init_sym_table(sym_table);
 
    for (i = 0; i < num_instructs; i++) {
       instr_t* instruct = &instructs[i];
+
+      data->instruct = instruct;
 
       if (instruct->sym != NULL) {
          printf("sym instruction: %s", instruct->sym);
@@ -185,21 +243,25 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
       switch (instruct->name) {
          case OpMov:
             op_gen_mov(instruct, op, &op_i, sym_table);
-
          break;
 
          case OpInt:
             op_gen_int(instruct, op, &op_i, sym_table);
-
          break;
 
          case OpLabel:
-            op_gen_label(instruct, op, *op_i, sym_table);
+            op_gen_label(instruct, op, &op_i, sym_table);
          break;
 
+         case OpNop:
+            op_gen_nop(instruct, op, &op_i, sym_table);
+         break;
+
+         case OpSection:
+            op_gen_sec(&data);
 
          default:
-
+            printf("\nunknown opcode\n");
          break;
 
       }
@@ -212,7 +274,7 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
 
 
 //generates opcode, writes them to kopcode.test and returns the bytes
-byte_t* assemble_str(char* str, int* ret_len)
+byte_t* assemble_str(char* str, int* ret_len, sym_table_t* sym_table)
 {
    int num_lines;
    lexed_line_t* lexed = lex(str, &num_lines);
@@ -227,12 +289,9 @@ byte_t* assemble_str(char* str, int* ret_len)
       print_instructs(instructs, num_lines);
    }
 
-   sym_table_t sym_table;
-   sym_table_init(&sym_table);
-
    int opcode_len = 0;
    char* opcode = gen_op(instructs, num_lines, &opcode_len,
-                         &sym_table);
+                         sym_table);
 
    //write_file("kopcode.test", opcode, opcode_len);
 #ifdef DEBUG_BIN_ASM
@@ -243,5 +302,103 @@ byte_t* assemble_str(char* str, int* ret_len)
    return opcode;
 }
 
+
+
+/* SYMBOL TABLE FUNCTIONS */
+
+void sym_table_init(sym_table_t* st)
+{
+   LIST_NEW(st->entries, sym_table_entry_t,
+            st->num_entries, st->len_entries);
+
+   LIST_NEW(st->refs, sym_table_reference_t,
+            st->num_refs, st->len_refs);
+
+   LIST_NEW(st->sym_names, char,
+            st->num_name_chars, st->len_names);
+}
+
+//TODO: error (non-zero) value if it already exists
+int sym_table_add_sym(sym_table_t* st,
+                       char* name,
+                       int val,
+                       int flags,
+                       sym_complex_t* expr_val)
+{
+   int name_len = strlen(name) + 1;
+
+   LIST_ADD_ITEM_SPACE(st->entries, sym_table_entry_t,
+                       st->num_entries, sm->len_entries);
+
+   LIST_ADD_ITEM_SPACE(st->sym_names, char,
+                       st->num_name_chars + name_len,
+                       st->len_entries);
+
+   char* new_name_loc = st->sym_names + st->num_name_chars;
+
+   memcpy(new_name_loc,
+          name, name_len);
+
+   st->num_name_chars += name_len;
+
+   sym_table_entry_t* e = &st->entries[st->num_entries++];
+   e->name = new_name_loc;
+   e->val = val;
+   e->flags = flags;
+   e->expr_val = expr_val;
+
+   return 0;
+}
+
+
+int sym_table_add_ref(sym_table_t* st,
+                      char* name,
+                      int val,
+                      int flags,
+                      sym_complex_t* expr_val
+                      byte_t* ref_loc, //we modify bytes in ref_loc
+                      int ref_loc_len)
+{
+
+   sym_table_entry_t* e = NULL;
+   bool found_sym = false;
+   int i;
+   for (i = 0; i < st->num_entries; i++) {
+      e = st->entries[i];
+      if (0 == strncmp(e->name, name, strlen(e->name))) {
+         found_sym = true;
+         break;
+      }
+   }
+
+   if (!found_sym)
+      goto err;
+
+   LIST_ADD_ITEM_SPACE(st->refs, sym_table_reference_t,
+                       st->num_refs, st_len_refs);
+   sym_table_reference_t* r = &st->refs[st->num_refs++];
+
+   r->int_name = e->int_name;
+   r->sym_index = i;
+   r->flags = flags;
+
+   r->expr_val = expr_val;
+
+   if (ref_loc_len == 1) {
+      ref_loc[0] = (byte_t)val;
+   } else if (ref_loc_len == 2) {
+      *((uint16_t*)ref_loc) = (byte_t)val;
+   } else if (ref_loc_len == 4) {
+      *((uint32_t*)ref_loc) = val;
+   }
+
+   return 0;
+
+   err:
+   printf("\n=========ERROR\n");
+   return -1;
+}
+
+/* END SYMBOL TABLE FUNCTIONS */
 
 

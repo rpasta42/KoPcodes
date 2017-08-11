@@ -39,12 +39,10 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
       char* good_line = NULL;
 
-      bool have_comment = false;
       char** comment_split = split_at(line, ";");
       if (comment_split == NULL)
          good_line = line;
       else {
-         have_comment = true;
          good_line = comment_split[0];
          //printf("\ncomment split:%s\n", good_line);
          free(comment_split[1]);
@@ -118,8 +116,6 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 
 bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {
 
-   bool have_arg = false;
-
    int k;
    //first test if it's a register
    for (k = 0; k < NUM_REGS; k++) {
@@ -141,7 +137,7 @@ bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_
 
       int hex_num = parse_hex_num(str_lex+2, str_lex+lex_len);
 
-      if (hex_num == 0xDEADBAEF) {
+      if ((uint32_t)hex_num == 0xDEADBAEF) {
          printf("couldn't parse hex num: %s", str_lex);
          return false;
       }
@@ -155,7 +151,7 @@ bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_
       *arg_t = ArgConst;
 
       int human_num = parse_human_num(str_lex, str_lex + lex_len);
-      if (human_num == 0xDEADBAEF) {
+      if ((uint32_t)human_num == 0xDEADBAEF) {
          printf("couldn't parse number: %s", str_lex);
          return false;
       }
@@ -171,6 +167,7 @@ bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_
    }*/
    *arg_t = LEX_SYM;
    arg_v->sym_str = str_lex;
+   return true;
 
    //printf("\ncouldn't parse argument: %s", str_lex);
    //return false;
@@ -205,6 +202,8 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
       for (j = 0; j < num_lexemes; j++) {
          lexeme_t* lexeme = &lexemes[j];
          char* str_lex = lexeme->str;
+
+         //printf("\n=====%s\n========%c\n", str_lex, str_lex[strlen(str_lex)]);
 
          if (str_lex[strlen(str_lex)-1] == ':') {
             int k;
@@ -251,6 +250,7 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
             instructs[i].sym = str_lex;
             have_instr_name = true;
 
+
             if (!have_instr_name) {
                printf("\ncouldn't match instruction to assembly call: %s\n", str_lex);
                goto bad;
@@ -287,7 +287,6 @@ instr_t* gen_instructions(lexed_line_t* lines, int num_lines) {
 
    return instructs;
 
-   bad_lex:;
    bad:;
    printf("\nline:%i\n", i);
    free(instructs);

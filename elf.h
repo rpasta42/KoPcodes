@@ -280,15 +280,11 @@ TYPE(elf32_sym_table_entry_t, struct) {
 
 
 
-
-
 /*TYPE(elf_conf_t, struct) {
    elf_machine_t machine_type;
    uint16_t elf_file_type;
 } END_TYPE(elf_conf_t);*/
 
-
-/**********************FUNCTIONS**********************/
 
 TYPE(elf_file_t, struct) {
    byte_t* mem;
@@ -312,11 +308,15 @@ TYPE(elf_file_t, struct) {
    char* str_sect_strings_p;
    int str_sect_strings_len;
 
+   sym_table_t* sym_table;
 } END_TYPE(elf_file_t);
 
 
+/**********************FUNCTIONS**********************/
+
 elf_file_t* read_elf(char* fname);
-elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes);
+elf_file_t* gen_elf(byte_t* opcodes, int len_opcodes,
+			  sym_table_t* sym_table);
 
 
 /* start global header functions */
@@ -393,22 +393,6 @@ void elf_init_prog_header(elf32_program_header_t* h,
 
 //elf_info.c
 void elf_file_print_debug(elf_file_t* elf_file);
-
-/*
-linking view:
-   ELF header
-   Program header table (optional)
-   Section 1
-   Section 2
-   Section header table
-
-execution view:
-   ELF header
-   Program Header Table
-   Segment 1
-   Segment 2
-   Section header table (optional)
-*/
 
 
 #endif //ELF_H_INCLUDE

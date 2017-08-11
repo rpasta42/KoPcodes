@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-g -O2 -Wall -Wextra
+CEXTRA_FLAGS= #-Wall -Wextra
+CFLAGS=-g -O2 $(CEXTRA_FLAGS)
 OUTF=kopcodes.ex
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
@@ -17,6 +18,7 @@ readelf2: build #print header for example executable
 	./$(OUTF) readelf misc/tests/test_elf.ex #$(OUTF)
 readelf1: run_gen_elf
 	./$(OUTF) readelf $(OUT_FILE_PATH)
+
 
 run: run_gen_elf
 	chmod u+x ./$(OUT_FILE_PATH); ./$(OUT_FILE_PATH)

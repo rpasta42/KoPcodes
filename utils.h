@@ -50,12 +50,13 @@ void print_mem(char* bytes, int num_bytes);
 do { \
    num_entries = 0; \
    len_entries = 5; \
-   entries = malloc(sizeof(entry_type)*len_entries; \
+   entries = malloc(sizeof(entry_type)*len_entries); \
 } while (0)
 
 #define LIST_ADD_ITEM_SPACE(entries, entry_type, num_entries, len_entries) \
 do { \
    if (num_entries + 1 > len_entries) { \
+      len_entries = num_entries + 3; \
       len_entries *= 2; \
       entries = realloc(entries, sizeof(entry_type)*len_entries); \
    } \

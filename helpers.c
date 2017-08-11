@@ -2,8 +2,8 @@
 #include "utils.h"
 #include "main.h"
 
-extern char* reg_names_str[];
-extern char* instr_names_str[];
+//extern char* reg_names_str[];
+//extern char* instr_names_str[];
 
 
 //print instruction and assembled code side by side
