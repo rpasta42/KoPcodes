@@ -107,33 +107,46 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-5,11fold
-32,107fold
-17,116fold
-119,148fold
-150,155fold
-169,179fold
-182,196fold
-198,211fold
-163,221fold
-249,272fold
-273,279fold
-280,291fold
-225,310fold
-312,350fold
+8,14fold
+32,105fold
+17,114fold
+124,134fold
+137,151fold
+153,166fold
+117,177fold
+180,187fold
+211,225fold
+233,248fold
+231,261fold
+262,268fold
+269,280fold
+205,287fold
+195,288fold
+189,298fold
+300,338fold
 17
 normal! zo
 32
 normal! zo
 17
 normal! zc
-163
+117
 normal! zo
-163
+117
 normal! zc
-225
+189
 normal! zo
-225
+195
+normal! zo
+205
+normal! zo
+231
+normal! zo
+262
+normal! zo
+195
+normal! zc
+189
 normal! zc
 let s:l = 1 - ((0 * winheight(0) + 16) / 32)
 if s:l < 1 | let s:l = 1 | endif

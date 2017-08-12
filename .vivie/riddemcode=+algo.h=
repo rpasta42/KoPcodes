@@ -98,7 +98,7 @@ endif
 setlocal tabstop=6
 setlocal tagcase=
 setlocal tags=
-setlocal textwidth=90
+setlocal textwidth=290
 setlocal thesaurus=
 setlocal noundofile
 setlocal undolevels=-123456
@@ -107,12 +107,59 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 16) / 32)
+7,10fold
+12,17fold
+19,26fold
+28,34fold
+36,42fold
+45,49fold
+51,68fold
+4,70fold
+75,79fold
+85,89fold
+93,95fold
+100,106fold
+110,113fold
+118,122fold
+118,122fold
+118,122fold
+126,130fold
+126,130fold
+136,146fold
+151,159fold
+163,173fold
+177,183fold
+187,190fold
+193,202fold
+206,209fold
+214,221fold
+228,236fold
+241,245fold
+249,257fold
+261,267fold
+73,270fold
+4
+normal! zo
+4
+normal! zc
+73
+normal! zo
+75
+normal! zo
+118
+normal! zo
+118
+normal! zo
+126
+normal! zo
+73
+normal! zc
+let s:l = 281 - ((278 * winheight(0) + 16) / 32)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+281
+normal! 020|
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost
 " vim: set ft=vim :
