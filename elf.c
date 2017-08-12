@@ -317,11 +317,19 @@ void elf_relocate_sym_table(elf_file_t* f)
    uint32_t opcode_base_addr = f->segments_offset +
 					 ELF_INIT_ADDR;
 
+   sym_table_reference_t* ref = NULL;
+
    int i;
    for (i = 0; i < st->num_refs; i++) {
-	entry = st->entries[i];
+	ref = &st->refs[i];
 
    }
+
+   /*int i;
+   for (i = 0; i < st->num_entries; i++) {
+	entry = st->entries[i];
+   }*/
+
 }
 
 

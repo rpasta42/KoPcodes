@@ -9,10 +9,13 @@
 TYPE(lex_type_t, enum) {
    LEX_SYM, //LEX_STR
    LEX_HEX, LEX_INT,
-   LEX_REG,
-   LEX_DOT_SYM
-   //LEX_COMMA, LEX_SEMI,
-   //LEX_OPEN_SQUARE, LEX_CLOSE_SQUARE
+   LEX_REG, //register
+   LEX_DOT_SYM,
+   LEX_COMMA, LEX_SEMI,
+   LEX_OPEN_SQUARE, LEX_CLOSE_SQUARE,
+   LEX_OP, //-, +, *
+   LEX_STR,
+   LEX_DOLLAR,
 } END_TYPE(lex_type_t);
 
 //struct lexeme_t
@@ -189,8 +192,8 @@ Flags
 
 TYPE(sym_complex_t, struct) {
    int is_reserve; //dd, db, equ, resp
-
-} END_TYPE(sym_complex_t, struct);
+   int is_square_brackets;
+} END_TYPE(sym_complex_t);
 
 TYPE(sym_table_entry_t, struct) {
    char* name;
@@ -252,6 +255,49 @@ TYPE(asm_op_data_t, struct) {
    asm_seg_info_t* segs;
 
 } END_TYPE(asm_op_data_t);
+
+
+
+TYPE(stage_line_t, struct) {
+   int num_lexemes; //either
+   int* lexeme_old_indices;
+   int* lexeme_new_indices;
+
+   int old_line_num;
+   int new_line_num;
+} END_TYPE(stage_line_t);
+
+TYPE(stage_t, struct) {
+   char* src;
+   size_t src_len;
+
+   int len_lines;
+   int num_lines;
+   char** lines;
+   int* line_indices;
+   //int*
+} END_TYPE(stage_t);
+
+
+TYPE(preproc_conf_t, struct) {
+
+} END_TYPE(preproc_conf_t);
+
+inline void preprocessor(stage_t* in) {
+   stage_t* out;
+
+}
+
+TYPE(lexed_file_t, struct) {
+   char* str_data;
+   int str_len;
+
+   lexed_line_t* lines;
+   int num_lines;
+   int len_lines;
+
+} END_TYPE(lexed_file_t);
+
 
 
 #endif //TYPES_H_INCLUDE

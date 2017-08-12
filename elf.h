@@ -2,6 +2,7 @@
 #define ELF_H_INCLUDE
 
 #include "utils.h"
+#include "types.h"
 
 //#define DEBUG_BIN_ASM "kopcodes.bin"
 

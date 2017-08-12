@@ -22,7 +22,21 @@
 #define size_t uint32_t
 //#define NULL 0
 typedef unsigned char byte_t;
+typedef const char* c_string_t;
+
 //#define byte_t char
+
+#define MIN(a, b) ((a < b) ? a : b)
+
+#define K_FREE(x) do { \
+   free(x); \
+   x = NULL; \
+} while (0)
+
+
+
+#include "algo.h"
+
 
 bool is_spacy(char c);
 bool is_alpha(char c);
@@ -45,22 +59,6 @@ void write_file(char* fname, char* data, int data_len);
 //prints memory in hexadecimal
 void print_mem(char* bytes, int num_bytes);
 
-
-#define LIST_NEW(entries, entry_type, num_entries, len_entries) \
-do { \
-   num_entries = 0; \
-   len_entries = 5; \
-   entries = malloc(sizeof(entry_type)*len_entries); \
-} while (0)
-
-#define LIST_ADD_ITEM_SPACE(entries, entry_type, num_entries, len_entries) \
-do { \
-   if (num_entries + 1 > len_entries) { \
-      len_entries = num_entries + 3; \
-      len_entries *= 2; \
-      entries = realloc(entries, sizeof(entry_type)*len_entries); \
-   } \
-} while (0)
 
 void to_lower_str(char* p);
 

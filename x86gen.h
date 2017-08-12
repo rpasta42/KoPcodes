@@ -27,7 +27,7 @@ int sym_table_add_ref(sym_table_t* st,
                       char* name,
                       int val,
                       int flags,
-                      sym_complex_t* expr_val
+                      sym_complex_t* expr_val,
                       byte_t* ref_loc, //we modify bytes in ref_loc
                       int ref_loc_len);
 

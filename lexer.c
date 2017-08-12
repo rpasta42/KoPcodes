@@ -114,7 +114,10 @@ lexed_line_t* lex(char* file, int *num_lines1) {
 }
 
 
-bool extract_arg(char* str_lex, int lex_len, instr_arg_type_t* arg_t, instr_arg_value_t* arg_v) {
+bool extract_arg(char* str_lex, int lex_len,
+                 instr_arg_type_t* arg_t,
+                 instr_arg_value_t* arg_v)
+{
 
    int k;
    //first test if it's a register

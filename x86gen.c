@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "types.h"
 #include "utils.h"
 #include "main.h"
@@ -183,13 +184,19 @@ void op_gen_sect(asm_op_data_t* data) {
    LIST_ADD_ITEM_SPACE(data->segs, asm_seg_info_t,
                        data->num_segs, data->len_segs);
 
-   asm_seg_info_t* seg = &data->segs[num_segs++];
+   asm_seg_info_t* seg = &data->segs[data->num_segs++];
    seg->offset = *data->mem_index;
 
    instr_t* inst = data->instruct;
 
    assert(inst->arg1_t == ArgSym);
    seg->name = inst->arg1_v.sym_str;
+}
+
+
+void op_gen_sym(asm_op_data_t* data) {
+   instr_t* instruct = data->instruct;
+   //instruct->sym
 }
 
 
@@ -209,6 +216,8 @@ void init_asm_op_data(asm_op_data_t* data,
             data->num_segs, data->len_segs);
 
 }
+
+
 
 //converts instr_t to x86 opcode
 //ret_size is set to size of return pointer
@@ -234,10 +243,11 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
    for (i = 0; i < num_instructs; i++) {
       instr_t* instruct = &instructs[i];
 
-      data->instruct = instruct;
+      data.instruct = instruct;
 
       if (instruct->sym != NULL) {
          printf("sym instruction: %s", instruct->sym);
+         op_gen_sym(&data);
          continue;
       }
       switch (instruct->name) {
@@ -258,7 +268,7 @@ char* gen_op(instr_t* instructs, int num_instructs, int* ret_size,
          break;
 
          case OpSection:
-            op_gen_sec(&data);
+            op_gen_sect(&data);
 
          default:
             printf("\nunknown opcode\n");
@@ -303,6 +313,44 @@ byte_t* assemble_str(char* str, int* ret_len, sym_table_t* sym_table)
 }
 
 
+//generates opcode, writes them to kopcode.test and returns the bytes
+byte_t* assemble_str2(char* str, int str_len,
+                      int* ret_len, sym_table_t* sym_table)
+{
+   int num_lines;
+
+   lexed_file_t f;
+   f.str_data = str;
+   f.str_len = str_len;
+
+   lex2(f); //sets f->lines
+
+   DEBUG("run_asm")
+
+/*
+   instr_t* instructs = gen_instructions(lexed, num_lines);
+
+   printf("\nerror if 0: %lu\n", (uint64_t)instructs);
+   if (instructs) {
+      print_instructs(instructs, num_lines);
+   }
+
+   int opcode_len = 0;
+   char* opcode = gen_op(instructs, num_lines, &opcode_len,
+                         sym_table);
+
+   //write_file("kopcode.test", opcode, opcode_len);
+#ifdef DEBUG_BIN_ASM
+   write_file(DEBUG_BIN_ASM, opcode, opcode_len);
+#endif
+
+   *ret_len = opcode_len;
+   return opcode;*/
+   return NULL;
+}
+
+
+
 
 /* SYMBOL TABLE FUNCTIONS */
 
@@ -328,7 +376,7 @@ int sym_table_add_sym(sym_table_t* st,
    int name_len = strlen(name) + 1;
 
    LIST_ADD_ITEM_SPACE(st->entries, sym_table_entry_t,
-                       st->num_entries, sm->len_entries);
+                       st->num_entries, st->len_entries);
 
    LIST_ADD_ITEM_SPACE(st->sym_names, char,
                        st->num_name_chars + name_len,
@@ -355,7 +403,7 @@ int sym_table_add_ref(sym_table_t* st,
                       char* name,
                       int val,
                       int flags,
-                      sym_complex_t* expr_val
+                      sym_complex_t* expr_val,
                       byte_t* ref_loc, //we modify bytes in ref_loc
                       int ref_loc_len)
 {
@@ -364,7 +412,7 @@ int sym_table_add_ref(sym_table_t* st,
    bool found_sym = false;
    int i;
    for (i = 0; i < st->num_entries; i++) {
-      e = st->entries[i];
+      e = &st->entries[i];
       if (0 == strncmp(e->name, name, strlen(e->name))) {
          found_sym = true;
          break;
@@ -375,7 +423,7 @@ int sym_table_add_ref(sym_table_t* st,
       goto err;
 
    LIST_ADD_ITEM_SPACE(st->refs, sym_table_reference_t,
-                       st->num_refs, st_len_refs);
+                       st->num_refs, st->len_refs);
    sym_table_reference_t* r = &st->refs[st->num_refs++];
 
    r->int_name = e->int_name;

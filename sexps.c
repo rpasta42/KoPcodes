@@ -1,4 +1,46 @@
 #include "sexps.h"
+#include "types.h"
+
+
+
+
+void lex2(lexed_file_t* f) {
+   char* stripped = strip(f->str_data);
+
+   LIST_NEW(f->lines, lexed_line_t,
+            f->num_lines, f->len_lines);
+
+   int index_str_start = 0;
+   int index_str_end = 0;
+
+   char c;
+   int i = 0;
+   for (i = 0; i < f->str_len; i++) {
+      c = f->str_data[i];
+      switch (c) {
+         case ';':
+            while (c != '\n' && c != '\0') {
+               c = f->str_data[++i];
+            }
+            continue;
+         break;
+
+         case '\'':
+            index_str_start = i;
+            while (c != '\'') {
+               c = f->str_data[++i];
+            }
+
+         break;
+
+         default:
+
+         break;
+      }
+
+   }
+}
+
 
 sexps_t* s_cons(sexps_t* a, sexps_t* b) {
    sexps_t* s = malloc(sizeof(sexps_t));

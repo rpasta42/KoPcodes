@@ -14,8 +14,19 @@ void usage(int nargs, char** args) {
    printf("\n\tout_file_path is optional\n");
 }
 
+//instead of main_asm()
+void main_lex2(char* path_in, char* path_out) {
 
+   int fdata_len = 0;
+   byte_t* fdata = read_file_bin(path_in, &fdata_len);
 
+   sym_table_t sym_table;
+   sym_table_init(&sym_table);
+   int opcodes_len = 0;
+   char opcodes = assemble_str2(fdata, fdata_len,
+					  &opcodes_len, &sym_table);
+
+}
 
 void main_asm(char* path_in, char* path_out) {
    char* str;
@@ -99,6 +110,11 @@ int main(int nargs, char** args)
 
 	char* path_in = args[2];
 	char* path_out = (nargs == 4) ? args[3] : NULL;
+
+	main_lex2(path_in, path_out);
+	return 0;
+	//TMP
+	///////////////DEBUG TODO
 	main_asm(path_in, path_out);
 
    }
