@@ -106,6 +106,11 @@ void run_byte_string_tests() {
 
 void run_rb_tree_tests() {
 
+   rb_tree_t rb_tree;
+   rb_tree_new(&rb_tree);
+
+   rb_treek
+
 }
 
 void run_strip_tests() {
