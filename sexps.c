@@ -42,9 +42,52 @@ void lex2(lexed_file_t* f) {
 }
 
 
+
+sexps_t* sexps_parse(byte_string_t* bs) {
+
+
+   int num_lexemes = 0;
+   s_lex_t* lexemes = sexps_lex(bs, &num_lexemes);
+
+
+   int nestedness = 0;
+
+}
+
+
+//void s_new_lex_sym_str(
+
+s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
+
+   s_lex_t* lexs_ret;
+   s_lex_t* l;
+
+   int len_lexs;
+
+   LIST_NEW(lexs_ret, s_lex_t, *num_lexs, len_lexs);
+
+   char c;
+   size_t i;
+
+   for (i = 0; i < bs->len; i++) {
+      c = bs->str[i];
+
+      switch (c) {
+         case '(':
+            LIST_ADD_ITEM_SPACE(lexes_ret, s_lex_t, *num_lexs, len_lexs);
+            l = &lexs_ret[(*num_lexs)++];
+
+
+      }
+
+   }
+
+}
+
 sexps_t* s_cons(sexps_t* a, sexps_t* b) {
    sexps_t* s = malloc(sizeof(sexps_t));
    s->num_sub = 2;
+   s->len_sub_exps = 0;
 
    s->car = a;
    s->cdr = b;
@@ -52,26 +95,32 @@ sexps_t* s_cons(sexps_t* a, sexps_t* b) {
 }
 
 sexps_t* s_car(sexps_t* s) {
-   return s->car;
+   return &s->sub_exps[0];
 }
 
 sexps_t* s_cdr(sexps_t* s) {
-   return s->cdr;
+   return &s->sub_exps[1];
 }
 
-sexps_t* s_mk_atom_num(int n) {
+sexps_t* s_mk_atom_int32(int n) {
    sexps_t* s = malloc(sizeof(sexps_t));
-   s->num_sub = S_ATOM_NUM;
-   s->atom = (uint32_t)n;
+   s->num_sub = S_ATOM_INT32;
+   s->atom_val32 = (int32_t)n;
    return s;
 }
 
-int s_get_atom_val_num(sexps_t* e) {
-   return e->atom;
+sexps_t* s_mk_atom_str(byte_string_t* bs) {
+   sexps_t* s  = malloc(sizeof(sexps_t));
+   s->atom_type = S_ATOM_STR;
+   s->atom_val64 = byte_string_copy(bs);
 }
 
-sexps_str_t* s_get_atom_val_str(sexps_t* e) {
-   return (sexps_str_t*)e->atom;
+int s_get_atom_val_int32(sexps_t* e) {
+   return *(int32_t*)e->atom_val32;
+}
+
+byte_string_t* s_get_atom_val_str(sexps_t* e) {
+   return (sexps_str_t*)e->atom_val64;
 }
 
 void s_print(sexps_t* exp) {
@@ -104,6 +153,8 @@ void s_print(sexps_t* exp) {
    }
 
 }
+
+
 
 void test_sexps() {
    sexps_t* x = s_mk_atom_num(4);

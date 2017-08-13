@@ -220,6 +220,13 @@ byte_string_is_good_c_str(byte_string_t* bs)
    return true;
 }
 
+static inline byte_string_t*
+byte_string_copy(byte_string_t* bs)
+{
+
+   byte_string* ret = byte_string_new_from_bytes(bs->str, num);
+   ret ret;
+}
 
 //returns NULL if error
 //NEED TO FREE RETURN VALUE YOURSELF
@@ -285,6 +292,15 @@ TYPE(rb_tree_t, struct) {
 
 } END_TYPE(rb_tree_t);
 
+void rb_tree_new(rb_tree_t* t);
+
+rb_tree_t* rb_tree_insert(rb_tree_t* t, uint64_t key, void* entry);
+void rb_tree_insert_str(rb_tree_t* t, c_string_t* key, void* entry);
+
+void* rb_tree_search(rb_tree_t* t, uint64_t key);
+
+void rb_tree_delete_data(rb_tree_t* t);
+void rb_tree_free(rb_tree_t* t);
 
 
 /******END RB TREE******/

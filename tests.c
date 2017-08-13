@@ -95,7 +95,7 @@ void run_byte_string_tests() {
    byte_string_append(bs3, &bs1);
    assert(byte_string_cmp(bs3, bs5) == 0);
 
-   byte_string_free(bs1, false);
+   byte_string_free(&bs1, false);
    byte_string_free(bs2, true);
    byte_string_free(bs3, true);
    byte_string_free(bs4, true);
@@ -109,7 +109,20 @@ void run_rb_tree_tests() {
    rb_tree_t rb_tree;
    rb_tree_new(&rb_tree);
 
-   rb_treek
+   rb_tree_insert(&rb_tree, 4, "hello");
+
+   rb_tree_insert(&rb_tree, 8, "world");
+
+
+   void* res1 = rb_tree_search(&rb_tree, 4);
+   void* res2 = rb_tree_search(&rb_tree, 8);
+   void* res3 = rb_tree_search(&rb_tree, 5);
+
+   assert(res3 == NULL);
+   assert(strcmp(res1, "hello") == 0);
+   assert(strcmp(res2, "world") == 0);
+
+   SUCCESS_TEST("run_rb_tree_tests()");
 
 }
 
@@ -177,9 +190,9 @@ void run_elf_header_size_tests() {
 
 void run_tests() {
    run_byte_string_tests();
-   return;
-
    run_rb_tree_tests();
+
+   return;
 
    run_lex_tests();
    run_elf_header_size_tests();
