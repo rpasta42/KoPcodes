@@ -38,3 +38,9 @@ execution view:
 
 random thoughts
 - what the heck, our sym table will take care of complex expressions too (mov ebx, [ebx + eax * 4])
+
+```
+debugging
+
+make build; gdb --args ./kopcodes.ex test
+```

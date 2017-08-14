@@ -257,6 +257,17 @@ TYPE(asm_op_data_t, struct) {
 } END_TYPE(asm_op_data_t);
 
 
+/* used by lisp lexer */
+TYPE(stage_data_t, struct) {
+   size_t start_src;
+   size_t end_src;
+
+   size_t line_index_start;
+   size_t line_index_end;
+
+   size_t start_line;
+   size_t end_line;
+} END_TYPE(stage_data_t);
 
 TYPE(stage_line_t, struct) {
    int num_lexemes; //either

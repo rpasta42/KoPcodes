@@ -41,22 +41,6 @@ void lex2(lexed_file_t* f) {
    }
 }
 
-
-
-sexps_t* sexps_parse(byte_string_t* bs) {
-
-
-   int num_lexemes = 0;
-   s_lex_t* lexemes = sexps_lex(bs, &num_lexemes);
-
-
-   int nestedness = 0;
-
-}
-
-
-//void s_new_lex_sym_str(
-
 s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
 
    s_lex_t* lexs_ret;
@@ -74,7 +58,7 @@ s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
 
       switch (c) {
          case '(':
-            LIST_ADD_ITEM_SPACE(lexes_ret, s_lex_t, *num_lexs, len_lexs);
+            LIST_ADD_ITEM_SPACE(lexs_ret, s_lex_t, *num_lexs, len_lexs);
             l = &lexs_ret[(*num_lexs)++];
 
 
@@ -84,9 +68,25 @@ s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
 
 }
 
+sexps_t* sexps_parse(byte_string_t* bs) {
+
+
+   int num_lexemes = 0;
+   s_lex_t* lexemes = sexps_lex(bs, &num_lexemes);
+
+
+   int nestedness = 0;
+
+}
+
+
+//void s_new_lex_sym_str(
+
+
+
 sexps_t* s_cons(sexps_t* a, sexps_t* b) {
    sexps_t* s = malloc(sizeof(sexps_t));
-   s->num_sub = 2;
+   s->atom_type = S_ATOM_CONS;
    s->len_sub_exps = 0;
 
    s->car = a;
@@ -104,7 +104,7 @@ sexps_t* s_cdr(sexps_t* s) {
 
 sexps_t* s_mk_atom_int32(int n) {
    sexps_t* s = malloc(sizeof(sexps_t));
-   s->num_sub = S_ATOM_INT32;
+   s->atom_type = S_ATOM_INT32;
    s->atom_val32 = (int32_t)n;
    return s;
 }
@@ -126,12 +126,12 @@ byte_string_t* s_get_atom_val_str(sexps_t* e) {
 void s_print(sexps_t* exp) {
    sexps_str_t* s;
 
-   switch (exp->num_sub) {
-      case S_ATOM_NUM:
-         printf("number: %i", s_get_atom_val_num(exp));
+   switch (exp->num_sub_exps) {
+      case S_ATOM_INT32:
+         printf("number: %i", s_get_atom_val_int32(exp));
          break;
       case S_ATOM_CHAR:
-         printf("char: %c", (char)s_get_atom_val_num(exp));
+         printf("char: %c", (char)s_get_atom_val_int32(exp));
          break;
       case S_ATOM_STR:
          s = s_get_atom_val_str(exp);
@@ -141,9 +141,9 @@ void s_print(sexps_t* exp) {
          printf("cons pair: ");
          break;
       default:
-         if (exp->num_sub > 2) {
+         if (exp->num_sub_exps > 2) {
             printf("list");
-         } else if (exp->num_sub == 0 || exp->num_sub == 1) {
+         } else if (exp->num_sub_exps == 0 || exp->num_sub_exps == 1) {
             printf("BAD SEXPS!");
          } else {
             printf("unknown SEXPS!!");
@@ -157,7 +157,7 @@ void s_print(sexps_t* exp) {
 
 
 void test_sexps() {
-   sexps_t* x = s_mk_atom_num(4);
+   sexps_t* x = s_mk_atom_int32(4);
    sexps_t* y = s_cons(x, S_NULL);
 
    s_print(x);

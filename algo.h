@@ -28,7 +28,7 @@ do { \
 #define LIST_ADD_SPACE_EXACT(ents, ent_type, num_ents, len_ents) \
 do { \
    if (num_ents + 1 > len_ents) { \
-      len_ents = num_ents; \
+      len_ents = num_ents + 1; \
       ents = realloc(ents, sizeof(ent_type)*len_ents); \
    } \
 } while (0)
@@ -145,16 +145,25 @@ byte_string_hash(byte_string_t* bt)
    return hash;
 }
 
+static inline byte_string_t*
+byte_string_copy(byte_string_t* bs)
+{
+   byte_string_t* ret = byte_string_new_from_bytes(bs->str, bs->num);
+   return ret;
+}
+
 
 static inline void /* append b to end of a */
 byte_string_append(byte_string_t* a, byte_string_t* b)
 {
 
+   int old_a_num = a->num;
+   int new_a_num = a->num + b->num;
+   a->num = new_a_num;
    LIST_ADD_SPACE_EXACT(a->str, byte_t,
-                        a->num + b->num,
+                        a->num,
                         a->len);
-   memcpy(a->str + a->len, b->str, b->len);
-   a->len += b->len;
+   memcpy(a->str + old_a_num, b->str, b->num);
 
 }
 
@@ -163,7 +172,7 @@ byte_string_add(byte_string_t* a, byte_string_t* b)
 {
    byte_string_t* c = malloc(sizeof(byte_string_t));
    c->num = a->num + b->num;
-   c->len = c->num;
+   c->len = a->len + b->len;
    LIST_NEW_SIZE(c->str, byte_t, c->num, c->len);
 
    memcpy(c->str, a->str, a->num);
@@ -213,19 +222,11 @@ static inline bool /* no null characters in [bs[0]..bs[bs->len-1]] */
 byte_string_is_good_c_str(byte_string_t* bs)
 {
    int i;
-   for (i = 0; i < bs->len; i++) {
+   for (i = 0; i < bs->num; i++) {
       if (bs->str[i] == '\0')
          return false;
    }
    return true;
-}
-
-static inline byte_string_t*
-byte_string_copy(byte_string_t* bs)
-{
-
-   byte_string* ret = byte_string_new_from_bytes(bs->str, num);
-   ret ret;
 }
 
 //returns NULL if error

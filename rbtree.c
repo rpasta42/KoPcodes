@@ -19,12 +19,10 @@ void _rb_tree_init_node(rb_tree_t* t, rb_tree_t** root,
 
 void rb_tree_new(rb_tree_t* t) {
    _rb_tree_init_node(t, NULL, NULL, NULL, 'b');
-   t->p = NULL;
-   t->left = NULL;
-   t->right = NULL;
+   //t->p = NULL; //t->p = t;
 
    t->root = malloc(sizeof(rb_tree_t*)); //set every t to t->root
-   *t->root = t;
+   *(t->root) = t;
 }
 
 
@@ -145,6 +143,7 @@ void _rb_tree_insert_fixup(rb_tree_t* z)
             z->p->color = 'b';
             y->color = 'b';
             z->p->p->color = 'r';
+            z = z->p->p;
          }
          else if (z == z->p->right) {
             z = z->p;
@@ -160,6 +159,8 @@ void _rb_tree_insert_fixup(rb_tree_t* z)
             z->p->color = 'b';
             y->color = 'b';
             z->p->p->color = 'r';
+            z = z->p->p;
+
          }
          else if (z == z->p->left) {
             z = z->p;
@@ -199,5 +200,58 @@ void* rb_tree_search(rb_tree_t* t, uint64_t key) {
    else if (gt)
       return rb_tree_search(t->right, key);
 }
+
+
+
+void rb_tree_print(rb_tree_t* t) {
+   t = *t->root;
+
+   printf("\n****\n");
+   _rb_tree_print_helper(t, 0);
+   printf("\n****\n");
+
+
+}
+
+#define p_spaces(n) do { \
+   int _counter; \
+   for (_counter = 0; _counter < n; _counter++) { \
+      printf(" "); \
+   } \
+} while (0)
+
+void _rb_tree_print_helper(rb_tree_t* t, int depth)
+{
+
+   p_spaces(depth*4);
+   printf("entry:\n");
+
+   p_spaces((depth+1)*4);
+   printf("key: %i\n", t->key);
+   p_spaces((depth+1)*4);
+   printf("data: %i\n", t->data);
+   p_spaces((depth+1)*4);
+   printf("color: %c\n", t->color);
+   p_spaces((depth+1)*4);
+
+   if (t->left != NULL) {
+      printf("left: \n");
+      _rb_tree_print_helper(t->left, depth+2);
+   } else {
+      printf("left: NULL\n");
+   }
+
+   p_spaces((depth+1)*4);
+
+   if (t->right != NULL) {
+      printf("right: \n");
+      _rb_tree_print_helper(t->right, depth+2);
+   } else {
+      printf("right: NULL\n");
+   }
+
+}
+
+
 
 

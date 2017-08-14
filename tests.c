@@ -101,6 +101,8 @@ void run_byte_string_tests() {
    byte_string_free(bs4, true);
    byte_string_free(bs5, true);
 
+   free(s);
+
    SUCCESS_TEST("run_byte_string_tests()");
 }
 
@@ -109,18 +111,34 @@ void run_rb_tree_tests() {
    rb_tree_t rb_tree;
    rb_tree_new(&rb_tree);
 
-   rb_tree_insert(&rb_tree, 4, "hello");
-
+   rb_tree_insert(&rb_tree, 100, "hello");
+   rb_tree_print(&rb_tree);
    rb_tree_insert(&rb_tree, 8, "world");
+   rb_tree_print(&rb_tree);
+   rb_tree_insert(&rb_tree, 4, "test");
+   rb_tree_print(&rb_tree);
+   rb_tree_insert(&rb_tree, 10, "aaa");
+   rb_tree_print(&rb_tree);
+
+   //rb_tree_insert(&rb_tree, 90, "bbb");
 
 
-   void* res1 = rb_tree_search(&rb_tree, 4);
+
+   void* res1 = rb_tree_search(&rb_tree, 100);
    void* res2 = rb_tree_search(&rb_tree, 8);
-   void* res3 = rb_tree_search(&rb_tree, 5);
+   void* res3 = rb_tree_search(&rb_tree, 4);
+   void* res4 = rb_tree_search(&rb_tree, 10);
+   //void* res5 = rb_tree_search(&rb_tree, 90);
 
-   assert(res3 == NULL);
+   void* res6 = rb_tree_search(&rb_tree, 99); //bad
+
    assert(strcmp(res1, "hello") == 0);
    assert(strcmp(res2, "world") == 0);
+   assert(strcmp(res3, "test") == 0);
+   assert(strcmp(res4, "aaa") == 0);
+   //assert(strcmp(res5, "bbb") == 0);
+
+   assert(res6 == NULL);
 
    SUCCESS_TEST("run_rb_tree_tests()");
 
@@ -190,7 +208,7 @@ void run_elf_header_size_tests() {
 
 void run_tests() {
    run_byte_string_tests();
-   run_rb_tree_tests();
+   //run_rb_tree_tests();
 
    return;
 
