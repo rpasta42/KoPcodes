@@ -30,7 +30,7 @@ void s_mk_lex_num(s_lex_t* l,
    l->num_val = val;
 }
 
-void add_lex(s_lexed_file* f,
+//void add_lex(s_lexed_file* f,
 
 
 
