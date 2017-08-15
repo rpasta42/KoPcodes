@@ -20,6 +20,7 @@ void _rb_tree_init_node(rb_tree_t* t, rb_tree_t** root,
 void rb_tree_new(rb_tree_t* t) {
    _rb_tree_init_node(t, NULL, NULL, NULL, 'b');
    //t->p = NULL; //t->p = t;
+   t->p = t;
 
    t->root = malloc(sizeof(rb_tree_t*)); //set every t to t->root
    *(t->root) = t;
@@ -154,7 +155,7 @@ void _rb_tree_insert_fixup(rb_tree_t* z)
          }
       }
       else { //if (z->p == z->p->p->right)
-         y = z->p->p->right;
+         y = z->p->p->left;
          if (y->color == 'r') {
             z->p->color = 'b';
             y->color = 'b';

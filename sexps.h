@@ -78,8 +78,9 @@ TYPE(s_lex_t, struct) {
 
 
 TYPE(s_lexed_file, struct) {
-
-
+   s_lex_t* lexed_lines;
+   size_t num_lines;
+   size_t len_lines;
 } END_TYPE(s_lexed_file);
 
 void test_sexps();

@@ -2,6 +2,38 @@
 #include "types.h"
 
 
+void s_mk_lex(s_lex_t* l,
+              s_lex_type_t lex_type,
+              stage_data_t lex_data)
+{
+   l->type = lex_type;
+   l->lex_data = lex_data;
+   l->num_val = 0;
+}
+
+
+void s_mk_lex_str_sym(s_lex_t* l,
+                      s_lex_type_t lex_type,
+                      stage_data_t* lex_data,
+                      byte_string_t* s)
+{
+   s_mk_lex(l, lex_type, lex_data);
+   l->bs_val = s;
+}
+
+void s_mk_lex_num(s_lex_t* l,
+                  s_lex_type_t lex_type,
+                  stage_data_t lex_data,
+                  int64_t val)
+{
+   s_mk_lex(l, lex_type, lex_data);
+   l->num_val = val;
+}
+
+void add_lex(s_lexed_file* f,
+
+
+
 
 
 void lex2(lexed_file_t* f) {
@@ -43,12 +75,16 @@ void lex2(lexed_file_t* f) {
 
 s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
 
-   s_lex_t* lexs_ret;
+   s_lexed_file* lf = s_new_lexed_file();
+
    s_lex_t* l;
+   s_lex_t* lexs_ret; /* TODO: lexs_ret, num_lexes, and len_lexes should be part of s_lexed_file */
+
 
    int len_lexs;
 
-   LIST_NEW(lexs_ret, s_lex_t, *num_lexs, len_lexs);
+   LIST_NEW(lexs_ret, s_lex_t, (*num_lex)s, len_lexs);
+
 
    char c;
    size_t i;
@@ -58,8 +94,12 @@ s_lex_t* sexps_lex(byte_string_t* bs, int* num_lexs) {
 
       switch (c) {
          case '(':
+            add_lex(lexed_file, S_LEX_OPEN_PAREN
+
+            /* TODO: move this to add_lex() */
             LIST_ADD_ITEM_SPACE(lexs_ret, s_lex_t, *num_lexs, len_lexs);
             l = &lexs_ret[(*num_lexs)++];
+
 
 
       }
