@@ -152,6 +152,12 @@ void run_strip_tests() {
    printf("%s\n", stripped2);
    free(stripped1);
    free(stripped2);
+
+
+   assert(strcmp(stripped1, " hello world! f "));
+
+   SUCCESS_TEST("run_rb_tree_tests()");
+
 }
 
 void run_split_at_every_tests() {
@@ -208,6 +214,8 @@ void run_elf_header_size_tests() {
 
 void run_tests() {
    run_byte_string_tests();
+
+   run_strip_tests();
    //run_rb_tree_tests();
 
    return;
@@ -216,7 +224,6 @@ void run_tests() {
    run_elf_header_size_tests();
 
 
-   run_strip_tests();
    run_split_at_every_tests();
    run_split_at_tests();
 }
