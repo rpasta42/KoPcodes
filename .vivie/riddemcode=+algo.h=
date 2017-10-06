@@ -126,22 +126,24 @@ silent! normal! zE
 126,130fold
 126,130fold
 136,146fold
-151,159fold
-163,173fold
-177,183fold
-187,190fold
-193,202fold
-206,209fold
-214,221fold
-225,229fold
-235,243fold
-248,252fold
-256,264fold
-268,274fold
-73,277fold
-282,293fold
-280,306fold
+150,153fold
+158,168fold
+172,182fold
+186,192fold
+196,199fold
+202,211fold
+215,218fold
+223,230fold
+236,244fold
+249,253fold
+257,265fold
+269,275fold
+73,278fold
+283,294fold
+281,307fold
 4
+normal! zo
+19
 normal! zo
 73
 normal! zo
@@ -155,15 +157,15 @@ normal! zo
 normal! zo
 73
 normal! zc
-280
+281
 normal! zo
-280
+281
 normal! zc
-let s:l = 7 - ((6 * winheight(0) + 16) / 32)
+let s:l = 279 - ((206 * winheight(0) + 13) / 27)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-7
+279
 normal! 0
 let &so = s:so_save | let &siso = s:siso_save
 doautoall SessionLoadPost
